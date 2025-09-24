@@ -4,16 +4,89 @@ import { StoreLayout } from '@/types/store';
 // Load store layout data from YAML file
 export async function loadStoreLayout(): Promise<StoreLayout> {
   try {
-    // In a real app, this would be loaded from a file or API
-    // For now, we'll import the YAML content directly
+    // Load the YAML file from the public directory
     const response = await fetch('/data/store-layout.yaml');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const yamlText = await response.text();
     const data = yaml.load(yamlText) as StoreLayout;
     return data;
   } catch (error) {
     console.error('Error loading store layout:', error);
-    throw new Error('Failed to load store layout data');
+    // Return a fallback layout for development
+    return getFallbackStoreLayout();
   }
+}
+
+// Fallback store layout for development/testing
+function getFallbackStoreLayout(): StoreLayout {
+  return {
+    map: {
+      width: 100,
+      height: 80,
+      scale: 1.0
+    },
+    sections: [
+      {
+        name: "Dairy",
+        id: "dairy",
+        color: "#87CEEB",
+        aisles: [
+          {
+            id: "dairy-1",
+            coordinates: [[10, 5], [15, 5], [15, 8], [10, 8]],
+            type: "rectangular"
+          }
+        ]
+      }
+    ],
+    items: [
+      {
+        id: "milk-organic",
+        name: "Organic Whole Milk",
+        category: "Dairy",
+        section: "dairy",
+        coordinates: [12, 6],
+        price: 4.99,
+        in_stock: true
+      }
+    ],
+    uwb_anchors: [
+      {
+        id: "anchor-1",
+        coordinates: [5, 5],
+        range: 25
+      },
+      {
+        id: "anchor-2",
+        coordinates: [50, 5],
+        range: 25
+      },
+      {
+        id: "anchor-3",
+        coordinates: [95, 5],
+        range: 25
+      }
+    ],
+    entrances: [
+      {
+        id: "main-entrance",
+        name: "Main Entrance",
+        coordinates: [50, 0],
+        type: "entrance"
+      }
+    ],
+    checkouts: [
+      {
+        id: "checkout-1",
+        name: "Checkout Lane 1",
+        coordinates: [60, 10],
+        type: "standard"
+      }
+    ],
+    services: []
+  };
 }
 
 // Find items by name or category

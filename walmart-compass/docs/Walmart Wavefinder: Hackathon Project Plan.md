@@ -22,12 +22,12 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
 ### **✅ Phase 2: Simulation & Pathfinding Core (Wednesday, Sept 24\)**
 
 * **Objective:** Build the simulation engine and the navigation logic. This is the most technically challenging day.  
-* \[ \] **Map Rendering:**  
-  * \[ \] Create a component that reads store-layout.json and renders a visual representation of the store aisles and layout. A simple 2D grid using HTML divs or an HTML Canvas is fine.  
-* \[ \] **Cart Simulation:**  
-  * \[ \] Create a state for the cart ({x, y, heading}).  
-  * \[ \] Render the cart on the map as a blue arrow.  
-  * [] Implement keyboard controls (e.g., arrow keys) to manually move the cart's (x, y) state for testing. This is crucial for demonstrating navigation.  
+* [x] **Map Rendering:**  
+  * [x] Create a component that reads store-layout.yaml and renders a visual representation of the store aisles and layout. A simple 2D grid using HTML divs or an HTML Canvas is fine.  
+* [x] **Cart Simulation:**  
+  * [x] Create a state for the cart ({x, y, heading}).  
+  * [x] Render the cart on the map as a blue arrow.  
+  * [x] Implement keyboard controls (e.g., arrow keys) to manually move the cart's (x, y) state for testing. This is crucial for demonstrating navigation.  
 * [] **UWB Simulation & Positioning:**  
   * \[ \] Write a function that calculates the "true" distance from the simulated cart to each UWB anchor defined in your JSON. Add a small random noise factor to make it more realistic.  
   * \[ \] Implement a positioning algorithm (e.g., trilateration) that takes the simulated distances from at least 3 anchors and *calculates* the cart's position.  
