@@ -128,19 +128,34 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     }
   }, [storeLayout, trueCart.x, trueCart.y, trueCart.heading]);
 
-  // Compute a multi-stop path from estimated cart position to selected targets (in order)
+  // Compute a multi-stop path from estimated cart position to selected targets (nearest-first greedy)
   useEffect(() => {
     if (!storeLayout) return;
     if (!targets || targets.length === 0) { if (pathPoints !== null) setPathPoints(null); return; }
 
     let currentStart = toGridPoint(estimatedCart?.x ?? trueCart.x, estimatedCart?.y ?? trueCart.y);
     const allPoints: { x: number; y: number }[] = [];
-    for (const t of targets) {
+    const remaining = [...targets];
+
+    const dist = (a: {x:number;y:number}, b: {x:number;y:number}) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+
+    while (remaining.length > 0) {
+      // choose nearest target to currentStart
+      let nearestIdx = 0;
+      let nearestD = Number.POSITIVE_INFINITY;
+      for (let i = 0; i < remaining.length; i++) {
+        const d = dist(currentStart, toGridPoint(remaining[i].x, remaining[i].y));
+        if (d < nearestD) { nearestD = d; nearestIdx = i; }
+      }
+      const t = remaining.splice(nearestIdx, 1)[0];
       const goal = toGridPoint(t.x, t.y);
       const seg = findPath(storeLayout, currentStart, goal);
       if (seg.length > 0) {
         if (allPoints.length > 0) seg.shift(); // avoid duplicate node at joins
         allPoints.push(...seg);
+        currentStart = goal;
+      } else {
+        // if no path, skip this target
         currentStart = goal;
       }
     }
@@ -238,9 +253,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
             ))}
 
             {/* Path rendering */}
-            {(
-              (pathPoints && pathPoints.length > 1) || true
-            ) && (
+            {pathPoints && pathPoints.length > 1 && (
               // Use store units by setting viewBox to map dimensions
               <svg
                 className="absolute inset-0 w-full h-full"
@@ -250,14 +263,14 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
               >
                 <defs>
                   <filter id="routeGlow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                    <feGaussianBlur stdDeviation="1" result="coloredBlur" />
                     <feMerge>
                       <feMergeNode in="coloredBlur" />
                       <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
-                  <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-                    <polygon points="0 0, 8 4, 0 8" fill="var(--walmart-blue)" />
+                  <marker id="arrowhead" markerUnits="strokeWidth" markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+                    <polygon points="0 0, 4 2, 0 4" fill="var(--walmart-blue)" />
                   </marker>
                 </defs>
                 <polyline
@@ -265,14 +278,9 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
                   fill="none"
                   filter="url(#routeGlow)"
                   markerEnd="url(#arrowhead)"
-                  strokeWidth={Math.max(2, Math.min(6, Math.round(Math.min(containerWidth, containerHeight) / 80)))}
-                  points={(pathPoints && pathPoints.length > 1
-                    ? pathPoints
-                    : [
-                        { x: Math.max(1, Math.floor((estimatedCart?.x ?? trueCart.x) - 5)) , y: Math.max(1, Math.floor((estimatedCart?.y ?? trueCart.y) - 5)) },
-                        { x: Math.min(map.width - 1, Math.floor((estimatedCart?.x ?? trueCart.x) + 5)) , y: Math.min(map.height - 1, Math.floor((estimatedCart?.y ?? trueCart.y) + 5)) }
-                      ]
-                  )
+                  vectorEffect="non-scaling-stroke"
+                  strokeWidth={Math.max(2, Math.min(4, Math.round(Math.min(containerWidth, containerHeight) / 200)))}
+                  points={pathPoints
                     .map(p => `${p.x},${p.y}`)
                     .join(' ')}
                 />

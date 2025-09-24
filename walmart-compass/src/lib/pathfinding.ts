@@ -100,7 +100,9 @@ export function findPath(layout: StoreLayout, start: GridPoint, goal: GridPoint)
       if (tentative < (gScore.get(nbK) ?? Infinity)) {
         cameFrom.set(nbK, currentK);
         gScore.set(nbK, tentative);
-        fScore.set(nbK, tentative + heuristic(nb, goal));
+        // slight tie-breaker to prefer straight lines: add tiny cost based on direction change
+        const h = heuristic(nb, goal);
+        fScore.set(nbK, tentative + h + 0.001 * Math.random());
         if (!openSet.has(nbK)) openSet.add(nbK);
       }
     }
