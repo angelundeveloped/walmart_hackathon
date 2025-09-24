@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Message {
   id: string;
@@ -14,15 +14,22 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ className = '' }: ChatWindowProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Hi! I\'m your Walmart shopping assistant. What items are you looking for today?',
-      isUser: false,
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    // Initialize with welcome message only on client side
+    setMessages([
+      {
+        id: '1',
+        text: 'Hi! I\'m your Walmart shopping assistant. What items are you looking for today?',
+        isUser: false,
+        timestamp: new Date()
+      }
+    ]);
+  }, []);
 
   const handleSendMessage = () => {
     if (!inputText.trim()) return;
@@ -64,27 +71,35 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
       
       <div className="flex-1 p-4 overflow-y-auto max-h-[400px]">
         <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[80%] p-3 rounded-lg ${
-                  message.isUser
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-800'
-                }`}
-              >
-                <p className="text-sm">{message.text}</p>
-                <p className={`text-xs mt-1 ${
-                  message.isUser ? 'text-blue-100' : 'text-gray-500'
-                }`}>
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
+          {!isClient ? (
+            <div className="flex justify-start">
+              <div className="max-w-[80%] p-3 rounded-lg bg-gray-100 text-gray-800">
+                <p className="text-sm">Loading chat...</p>
               </div>
             </div>
-          ))}
+          ) : (
+            messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[80%] p-3 rounded-lg ${
+                    message.isUser
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  <p className="text-sm">{message.text}</p>
+                  <p className={`text-xs mt-1 ${
+                    message.isUser ? 'text-blue-100' : 'text-gray-500'
+                  }`}>
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
       

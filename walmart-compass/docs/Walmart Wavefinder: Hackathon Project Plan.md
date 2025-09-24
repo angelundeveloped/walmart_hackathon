@@ -12,12 +12,12 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
   * [x] MapDisplay.tsx: A component that will hold the map canvas or divs.  
   * [x] ChatWindow.tsx: A component for the LLM chat interface.  
   * [x] ShoppingList.tsx: A component to display items and allow check-offs.  
-* [] **Data Modeling:** Define the data structure for the store layout in a JSON file (store-layout.json). Include:  
-  * Map dimensions.  
-  * Aisle coordinates (as polygons or lines for obstacles).  
-  * Item locations with name, ID, and (x, y) coordinates.  
-  * Simulated UWB anchor locations (x, y).  
-* [] **Initial Commit:** Push the basic project structure to a Git repository.
+* [x] **Data Modeling:** Define the data structure for the store layout in a YAML file (store-layout.yaml). Include:  
+  * [x] Map dimensions.  
+  * [x] Aisle coordinates (as polygons or lines for obstacles).  
+  * [x] Item locations with name, ID, and (x, y) coordinates.  
+  * [x] Simulated UWB anchor locations (x, y).  
+* [x] **Initial Commit:** Push the basic project structure to a Git repository.
 
 ### **✅ Phase 2: Simulation & Pathfinding Core (Wednesday, Sept 24\)**
 

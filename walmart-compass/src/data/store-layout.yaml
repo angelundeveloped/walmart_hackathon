@@ -1,0 +1,458 @@
+# Walmart Store Layout Configuration
+# This file defines the physical layout of the store for navigation simulation
+
+# Map Configuration
+map:
+  width: 100  # Grid units (representing meters)
+  height: 80  # Grid units (representing meters)
+  scale: 1.0  # Scale factor for rendering
+
+# Store Sections and Aisles
+sections:
+  - name: "Dairy"
+    id: "dairy"
+    color: "#87CEEB"
+    aisles:
+      - id: "dairy-1"
+        coordinates: [[10, 5], [15, 5], [15, 8], [10, 8]]
+        type: "rectangular"
+      - id: "dairy-2"
+        coordinates: [[10, 10], [15, 10], [15, 13], [10, 13]]
+        type: "rectangular"
+
+  - name: "Bakery"
+    id: "bakery"
+    color: "#D2B48C"
+    aisles:
+      - id: "bakery-1"
+        coordinates: [[20, 5], [25, 5], [25, 8], [20, 8]]
+        type: "rectangular"
+
+  - name: "Produce"
+    id: "produce"
+    color: "#90EE90"
+    aisles:
+      - id: "produce-1"
+        coordinates: [[30, 5], [35, 5], [35, 8], [30, 8]]
+        type: "rectangular"
+      - id: "produce-2"
+        coordinates: [[30, 10], [35, 10], [35, 13], [30, 13]]
+        type: "rectangular"
+
+  - name: "Meat & Seafood"
+    id: "meat"
+    color: "#FFB6C1"
+    aisles:
+      - id: "meat-1"
+        coordinates: [[40, 5], [45, 5], [45, 8], [40, 8]]
+        type: "rectangular"
+
+  - name: "Frozen Foods"
+    id: "frozen"
+    color: "#ADD8E6"
+    aisles:
+      - id: "frozen-1"
+        coordinates: [[50, 5], [55, 5], [55, 8], [50, 8]]
+        type: "rectangular"
+      - id: "frozen-2"
+        coordinates: [[50, 10], [55, 10], [55, 13], [50, 13]]
+        type: "rectangular"
+
+  - name: "Pantry"
+    id: "pantry"
+    color: "#F0E68C"
+    aisles:
+      - id: "pantry-1"
+        coordinates: [[10, 20], [20, 20], [20, 23], [10, 23]]
+        type: "rectangular"
+      - id: "pantry-2"
+        coordinates: [[25, 20], [35, 20], [35, 23], [25, 23]]
+        type: "rectangular"
+      - id: "pantry-3"
+        coordinates: [[40, 20], [50, 20], [50, 23], [40, 23]]
+        type: "rectangular"
+
+  - name: "Beverages"
+    id: "beverages"
+    color: "#98FB98"
+    aisles:
+      - id: "beverages-1"
+        coordinates: [[10, 30], [20, 30], [20, 33], [10, 33]]
+        type: "rectangular"
+
+  - name: "Health & Beauty"
+    id: "health"
+    color: "#FFA07A"
+    aisles:
+      - id: "health-1"
+        coordinates: [[25, 30], [35, 30], [35, 33], [25, 33]]
+        type: "rectangular"
+
+  - name: "Household"
+    id: "household"
+    color: "#DDA0DD"
+    aisles:
+      - id: "household-1"
+        coordinates: [[40, 30], [50, 30], [50, 33], [40, 33]]
+        type: "rectangular"
+      - id: "household-2"
+        coordinates: [[40, 35], [50, 35], [50, 38], [40, 38]]
+        type: "rectangular"
+
+# Product Items with Locations
+items:
+  # Dairy Products
+  - id: "milk-organic"
+    name: "Organic Whole Milk"
+    category: "Dairy"
+    section: "dairy"
+    coordinates: [12, 6]
+    price: 4.99
+    in_stock: true
+
+  - id: "milk-2percent"
+    name: "2% Reduced Fat Milk"
+    category: "Dairy"
+    section: "dairy"
+    coordinates: [13, 6]
+    price: 3.99
+    in_stock: true
+
+  - id: "eggs-free-range"
+    name: "Free Range Eggs (12 count)"
+    category: "Dairy"
+    section: "dairy"
+    coordinates: [12, 11]
+    price: 5.99
+    in_stock: true
+
+  - id: "cheese-cheddar"
+    name: "Sharp Cheddar Cheese"
+    category: "Dairy"
+    section: "dairy"
+    coordinates: [13, 11]
+    price: 6.99
+    in_stock: true
+
+  - id: "yogurt-greek"
+    name: "Greek Yogurt (Plain)"
+    category: "Dairy"
+    section: "dairy"
+    coordinates: [14, 6]
+    price: 4.49
+    in_stock: true
+
+  # Bakery Products
+  - id: "bread-whole-wheat"
+    name: "Whole Wheat Bread"
+    category: "Bakery"
+    section: "bakery"
+    coordinates: [22, 6]
+    price: 2.99
+    in_stock: true
+
+  - id: "bread-white"
+    name: "White Sandwich Bread"
+    category: "Bakery"
+    section: "bakery"
+    coordinates: [23, 6]
+    price: 2.49
+    in_stock: true
+
+  - id: "bagels"
+    name: "Everything Bagels (6 pack)"
+    category: "Bakery"
+    section: "bakery"
+    coordinates: [22, 7]
+    price: 3.99
+    in_stock: true
+
+  # Produce
+  - id: "bananas"
+    name: "Organic Bananas (per lb)"
+    category: "Produce"
+    section: "produce"
+    coordinates: [32, 6]
+    price: 1.99
+    in_stock: true
+
+  - id: "apples"
+    name: "Red Delicious Apples (per lb)"
+    category: "Produce"
+    section: "produce"
+    coordinates: [33, 6]
+    price: 2.49
+    in_stock: true
+
+  - id: "lettuce"
+    name: "Romaine Lettuce"
+    category: "Produce"
+    section: "produce"
+    coordinates: [32, 11]
+    price: 1.99
+    in_stock: true
+
+  - id: "tomatoes"
+    name: "Roma Tomatoes (per lb)"
+    category: "Produce"
+    section: "produce"
+    coordinates: [33, 11]
+    price: 2.99
+    in_stock: true
+
+  # Meat & Seafood
+  - id: "chicken-breast"
+    name: "Boneless Chicken Breast (per lb)"
+    category: "Meat"
+    section: "meat"
+    coordinates: [42, 6]
+    price: 6.99
+    in_stock: true
+
+  - id: "ground-beef"
+    name: "Ground Beef 80/20 (per lb)"
+    category: "Meat"
+    section: "meat"
+    coordinates: [43, 6]
+    price: 5.99
+    in_stock: true
+
+  - id: "salmon"
+    name: "Atlantic Salmon Fillet (per lb)"
+    category: "Seafood"
+    section: "meat"
+    coordinates: [42, 7]
+    price: 12.99
+    in_stock: true
+
+  # Frozen Foods
+  - id: "ice-cream-vanilla"
+    name: "Vanilla Ice Cream (1 qt)"
+    category: "Frozen"
+    section: "frozen"
+    coordinates: [52, 6]
+    price: 4.99
+    in_stock: true
+
+  - id: "frozen-vegetables"
+    name: "Mixed Frozen Vegetables"
+    category: "Frozen"
+    section: "frozen"
+    coordinates: [52, 11]
+    price: 2.99
+    in_stock: true
+
+  - id: "frozen-pizza"
+    name: "Pepperoni Pizza"
+    category: "Frozen"
+    section: "frozen"
+    coordinates: [53, 6]
+    price: 6.99
+    in_stock: true
+
+  # Pantry Items
+  - id: "pasta-spaghetti"
+    name: "Spaghetti Pasta"
+    category: "Pantry"
+    section: "pantry"
+    coordinates: [12, 21]
+    price: 1.99
+    in_stock: true
+
+  - id: "rice-basmati"
+    name: "Basmati Rice (5 lb)"
+    category: "Pantry"
+    section: "pantry"
+    coordinates: [13, 21]
+    price: 8.99
+    in_stock: true
+
+  - id: "cereal-cheerios"
+    name: "Honey Nut Cheerios"
+    category: "Pantry"
+    section: "pantry"
+    coordinates: [27, 21]
+    price: 4.99
+    in_stock: true
+
+  - id: "cookies-chocolate-chip"
+    name: "Chocolate Chip Cookies"
+    category: "Pantry"
+    section: "pantry"
+    coordinates: [28, 21]
+    price: 3.99
+    in_stock: true
+
+  - id: "canned-tomatoes"
+    name: "Crushed Tomatoes (28 oz)"
+    category: "Pantry"
+    section: "pantry"
+    coordinates: [42, 21]
+    price: 1.99
+    in_stock: true
+
+  - id: "olive-oil"
+    name: "Extra Virgin Olive Oil"
+    category: "Pantry"
+    section: "pantry"
+    coordinates: [43, 21]
+    price: 7.99
+    in_stock: true
+
+  # Beverages
+  - id: "water-bottles"
+    name: "Spring Water (24 pack)"
+    category: "Beverages"
+    section: "beverages"
+    coordinates: [12, 31]
+    price: 4.99
+    in_stock: true
+
+  - id: "soda-coca-cola"
+    name: "Coca-Cola (12 pack)"
+    category: "Beverages"
+    section: "beverages"
+    coordinates: [13, 31]
+    price: 6.99
+    in_stock: true
+
+  - id: "coffee-ground"
+    name: "Ground Coffee (Dark Roast)"
+    category: "Beverages"
+    section: "beverages"
+    coordinates: [14, 31]
+    price: 8.99
+    in_stock: true
+
+  # Health & Beauty
+  - id: "shampoo"
+    name: "Moisturizing Shampoo"
+    category: "Health & Beauty"
+    section: "health"
+    coordinates: [27, 31]
+    price: 5.99
+    in_stock: true
+
+  - id: "toothpaste"
+    name: "Fluoride Toothpaste"
+    category: "Health & Beauty"
+    section: "health"
+    coordinates: [28, 31]
+    price: 3.99
+    in_stock: true
+
+  - id: "vitamins-multivitamin"
+    name: "Daily Multivitamin"
+    category: "Health & Beauty"
+    section: "health"
+    coordinates: [29, 31]
+    price: 12.99
+    in_stock: true
+
+  # Household Items
+  - id: "laundry-detergent"
+    name: "Liquid Laundry Detergent"
+    category: "Household"
+    section: "household"
+    coordinates: [42, 31]
+    price: 9.99
+    in_stock: true
+
+  - id: "paper-towels"
+    name: "Paper Towels (6 pack)"
+    category: "Household"
+    section: "household"
+    coordinates: [43, 31]
+    price: 7.99
+    in_stock: true
+
+  - id: "toilet-paper"
+    name: "Toilet Paper (12 pack)"
+    category: "Household"
+    section: "household"
+    coordinates: [42, 36]
+    price: 11.99
+    in_stock: true
+
+  - id: "dish-soap"
+    name: "Dish Soap (Original)"
+    category: "Household"
+    section: "household"
+    coordinates: [43, 36]
+    price: 2.99
+    in_stock: true
+
+# UWB Anchor Locations for Positioning
+uwb_anchors:
+  - id: "anchor-1"
+    coordinates: [5, 5]
+    range: 25  # Maximum range in grid units
+  - id: "anchor-2"
+    coordinates: [50, 5]
+    range: 25
+  - id: "anchor-3"
+    coordinates: [95, 5]
+    range: 25
+  - id: "anchor-4"
+    coordinates: [5, 40]
+    range: 25
+  - id: "anchor-5"
+    coordinates: [50, 40]
+    range: 25
+  - id: "anchor-6"
+    coordinates: [95, 40]
+    range: 25
+  - id: "anchor-7"
+    coordinates: [5, 75]
+    range: 25
+  - id: "anchor-8"
+    coordinates: [50, 75]
+    range: 25
+  - id: "anchor-9"
+    coordinates: [95, 75]
+    range: 25
+
+# Store Entrances and Exits
+entrances:
+  - id: "main-entrance"
+    name: "Main Entrance"
+    coordinates: [50, 0]
+    type: "entrance"
+  - id: "garden-center"
+    name: "Garden Center Entrance"
+    coordinates: [0, 40]
+    type: "entrance"
+
+# Checkout Areas
+checkouts:
+  - id: "checkout-1"
+    name: "Checkout Lane 1"
+    coordinates: [60, 10]
+    type: "standard"
+  - id: "checkout-2"
+    name: "Checkout Lane 2"
+    coordinates: [65, 10]
+    type: "standard"
+  - id: "checkout-3"
+    name: "Checkout Lane 3"
+    coordinates: [70, 10]
+    type: "standard"
+  - id: "self-checkout"
+    name: "Self Checkout"
+    coordinates: [75, 10]
+    type: "self-service"
+
+# Store Services
+services:
+  - id: "pharmacy"
+    name: "Pharmacy"
+    coordinates: [80, 20]
+    type: "service"
+  - id: "customer-service"
+    name: "Customer Service"
+    coordinates: [85, 20]
+    type: "service"
+  - id: "money-center"
+    name: "Money Center"
+    coordinates: [80, 25]
+    type: "service"
