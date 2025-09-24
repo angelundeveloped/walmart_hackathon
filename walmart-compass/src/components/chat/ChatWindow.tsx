@@ -65,8 +65,8 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
 
   return (
     <div className={`bg-white border-2 border-gray-300 rounded-lg flex flex-col ${className}`}>
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-700">Shopping Assistant</h3>
+      <div className="p-4 border-b border-gray-200 bg-[rgba(0,113,206,0.05)]">
+        <h3 className="text-lg font-semibold text-walmart">Shopping Assistant</h3>
       </div>
       
       <div className="flex-1 p-4 overflow-y-auto max-h-[400px]">
@@ -84,16 +84,16 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
                 className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] p-3 rounded-lg ${
-                    message.isUser
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                className={`max-w-[80%] p-3 rounded-lg ${
+                  message.isUser
+                    ? 'bg-walmart text-white'
+                    : 'bg-white border border-gray-200 text-contrast'
+                } shadow-sm`}
                 >
-                  <p className="text-sm">{message.text}</p>
-                  <p className={`text-xs mt-1 ${
-                    message.isUser ? 'text-blue-100' : 'text-gray-500'
-                  }`}>
+                <p className="text-sm text-contrast">{message.text}</p>
+                <p className={`text-xs mt-1 ${
+                  message.isUser ? 'text-blue-100' : 'text-contrast-light'
+                }`}>
                     {message.timestamp.toLocaleTimeString()}
                   </p>
                 </div>
@@ -111,12 +111,12 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask for items like 'I need milk, bread, and eggs'"
-            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--walmart-blue)]"
           />
           <button
             onClick={handleSendMessage}
             disabled={!inputText.trim()}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-3 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors btn-primary"
           >
             Send
           </button>
