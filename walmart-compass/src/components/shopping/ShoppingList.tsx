@@ -19,7 +19,7 @@ interface ShoppingListProps {
 }
 
 export default function ShoppingList({ className = '' }: ShoppingListProps) {
-  const { setTargetsAbsolute } = useSelection();
+  const { setTargetsAbsolute, pendingItems } = useSelection();
   const [items, setItems] = useState<ShoppingItem[]>([
     {
       id: '1',
@@ -54,13 +54,35 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
     );
   };
 
-  // Sync selections to shared context in one atomic update
+  const removeItem = (id: string) => {
+    setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  // Sync selections to shared context in one atomic update + merge parsed pendingItems
   useEffect(() => {
+    // Merge any new pending chat items into the list if not present
+    if (pendingItems.length > 0) {
+      setItems(prev => {
+        const existingNames = new Set(prev.map(p => p.name.toLowerCase()));
+        const additions = pendingItems
+          .filter(p => !existingNames.has((p.label ?? p.id).toLowerCase()))
+          .map((p, idx) => ({
+            id: `chat-${p.id}-${idx}`,
+            name: p.label ?? p.id,
+            category: 'From Chat',
+            isCompleted: false,
+            location: { x: p.x, y: p.y },
+          }));
+        if (additions.length === 0) return prev;
+        return [...prev, ...additions];
+      });
+    }
+
     const targets = items
       .filter(i => i.location && !i.isCompleted)
       .map(i => ({ id: i.id, x: i.location!.x, y: i.location!.y, label: i.name }));
     setTargetsAbsolute(targets);
-  }, [items, setTargetsAbsolute]);
+  }, [items, setTargetsAbsolute, pendingItems]);
 
   const completedCount = items.filter(item => item.isCompleted).length;
   const totalCount = items.length;
@@ -132,6 +154,14 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                     ({item.location.x}, {item.location.y})
                   </div>
                 )}
+
+                <button
+                  onClick={() => removeItem(item.id)}
+                  className="ml-3 text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-50"
+                  aria-label={`Remove ${item.name}`}
+                >
+                  Remove
+                </button>
               </div>
             ))}
           </div>

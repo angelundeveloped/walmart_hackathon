@@ -15,12 +15,15 @@ interface SelectionContextValue {
   removeTarget: (id: string) => void;
   clearTargets: () => void;
   setTargetsAbsolute: (list: TargetPoint[]) => void;
+  pendingItems: TargetPoint[];
+  setPendingItems: (list: TargetPoint[]) => void;
 }
 
 const SelectionContext = createContext<SelectionContextValue | undefined>(undefined);
 
 export function SelectionProvider({ children }: { children: ReactNode }) {
   const [targets, setTargets] = useState<TargetPoint[]>([]);
+  const [pendingItems, setPendingItems] = useState<TargetPoint[]>([]);
 
   const equalTargets = (a: TargetPoint[], b: TargetPoint[]) => {
     if (a === b) return true;
@@ -45,6 +48,8 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
     setTargetsAbsolute: (list: TargetPoint[]) => {
       setTargets(prev => (equalTargets(prev, list) ? prev : list));
     },
+    pendingItems,
+    setPendingItems,
   }), [targets]);
 
   return (

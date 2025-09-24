@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { askGemini, parseItemsFromYaml, mapItemsToCoordinates } from '@/lib/llm';
+import { useSelection } from '@/lib/selection';
 
 interface Message {
   id: string;
@@ -17,6 +19,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isClient, setIsClient] = useState(false);
+  const { setTargetsAbsolute, setPendingItems } = useSelection();
 
   useEffect(() => {
     setIsClient(true);
@@ -31,7 +34,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
     ]);
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim()) return;
 
     const newMessage: Message = {
@@ -44,16 +47,41 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
     setMessages(prev => [...prev, newMessage]);
     setInputText('');
 
-    // Simulate AI response (placeholder for now)
-    setTimeout(() => {
-      const aiResponse: Message = {
+    try {
+      const reply = await askGemini(newMessage.text);
+      // Show a friendly confirmation instead of raw YAML
+      const extracted = parseItemsFromYaml(reply);
+      const pretty = extracted.length > 0
+        ? `Got it! I found: ${extracted.join(', ')}. Adding them to your list and route.`
+        : `I understand. Let me try to add that to your route.`;
+      const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'I understand you\'re looking for those items. Let me help you find the best route through the store!',
+        text: pretty,
         isUser: false,
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+      setMessages(prev => [...prev, aiMessage]);
+
+      // Try to parse items from YAML and add as targets (name-only; mapping to coordinates is next step)
+      const items = extracted;
+      if (items.length > 0) {
+        const coords = await mapItemsToCoordinates(items);
+        if (coords.length > 0) {
+          const targets = coords.map(c => ({ id: c.id, x: c.x, y: c.y, label: c.name }));
+          setTargetsAbsolute(targets);
+          // Also queue them as pending to sync into ShoppingList if not present
+          setPendingItems(targets);
+        }
+      }
+    } catch (e) {
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: 'Sorry, I had trouble understanding that. Please try again.',
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

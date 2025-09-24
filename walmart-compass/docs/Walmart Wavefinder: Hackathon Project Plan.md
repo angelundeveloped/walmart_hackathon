@@ -41,10 +41,10 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
 ### **✅ Phase 3: AI Integration & UI Polish (Thursday, Sept 25)**
 
 * **Objective:** Connect the chat functionality and make the app interactive.  
-* [] **LLM Chat Integration:**  
-  * [] Set up a client-side function to call the Gemini API.  
-  * [] Develop a system prompt that instructs the model to extract product names from user queries and return them in a structured yaml format (e.g., {"items": ["milk", "bread", "eggs"]}).  
-  * [] Connect the ChatWindow.tsx component to this function. Display the conversation flow.  
+* [x] **LLM Chat Integration:**  
+  * [x] Set up a client-side function to call the Gemini API.  
+  * [x] Develop a system prompt that instructs the model to extract product names from user queries and return them in a structured yaml format (e.g., {"items": ["milk", "bread", "eggs"]}).  
+  * [x] Connect the ChatWindow.tsx component to this function. Display the conversation flow.  
 * [] **Connecting Logic:**  
   * [] When the LLM returns the list of items, look up their coordinates from store-layout.json.  
   * [] Call your calculateRoute function with the cart's current position and the list of item coordinates.  
