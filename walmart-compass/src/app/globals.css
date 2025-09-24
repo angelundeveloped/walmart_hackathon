@@ -3,6 +3,11 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --walmart-blue: #0071CE;
+  --walmart-blue-dark: #0b4c8c;
+  --walmart-yellow: #FFC220;
+  --walmart-yellow-dark: #b38600;
+  --gray-dark: #1f2937;
 }
 
 @theme inline {
@@ -10,6 +15,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-walmart: var(--walmart-blue);
+  --color-walmart-yellow: var(--walmart-yellow);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,3 +31,42 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+.btn-primary {
+  @apply px-4 py-2 rounded-md text-white shadow-sm;
+  background-color: var(--walmart-blue);
+}
+.btn-primary:hover { filter: brightness(0.95); }
+.badge {
+  @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium border;
+}
+.badge-yellow { background-color: var(--walmart-yellow); border-color: var(--walmart-yellow-dark); }
+.badge-blue { background-color: var(--walmart-blue); border-color: var(--walmart-blue-dark); color: #fff; }
+
+/* Brand utility classes */
+.text-walmart { color: var(--walmart-blue); }
+.bg-walmart { background-color: var(--walmart-blue); }
+.border-walmart { border-color: var(--walmart-blue-dark); }
+.text-gray-dark { color: var(--gray-dark); }
+
+/* Map pin styles */
+.pin-yellow { background-color: var(--walmart-yellow); border-color: var(--walmart-yellow-dark); }
+.pin-blue { background-color: var(--walmart-blue); border-color: var(--walmart-blue-dark); }
+.pin-green { background-color: #22c55e; border-color: #15803d; }
+.pin-red { background-color: #ef4444; border-color: #991b1b; }
+.pin-purple { background-color: #8b5cf6; border-color: #5530c3; }
+
+/* Route styling (used with SVG currentColor) */
+.route-stroke { stroke: currentColor; stroke-opacity: 0.9; stroke-width: 3; }
+.route-color { color: var(--walmart-blue); }
+
+/* Enhanced route visibility */
+.route-stroke-bold { 
+  stroke: var(--walmart-blue); 
+  stroke-opacity: 1; 
+  stroke-width: 4; 
+  filter: drop-shadow(0 0 3px rgba(0,113,206,0.5));
+}
+
+/* Better text contrast */
+.text-contrast { color: #1f2937; }
+.text-contrast-light { color: #374151; }

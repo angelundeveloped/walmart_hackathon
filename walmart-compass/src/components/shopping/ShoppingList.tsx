@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelection } from '@/lib/selection';
 
 interface ShoppingItem {
   id: string;
@@ -18,6 +19,7 @@ interface ShoppingListProps {
 }
 
 export default function ShoppingList({ className = '' }: ShoppingListProps) {
+  const { setTargetsAbsolute } = useSelection();
   const [items, setItems] = useState<ShoppingItem[]>([
     {
       id: '1',
@@ -52,22 +54,33 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
     );
   };
 
+  // Sync selections to shared context in one atomic update
+  useEffect(() => {
+    const targets = items
+      .filter(i => i.location && !i.isCompleted)
+      .map(i => ({ id: i.id, x: i.location!.x, y: i.location!.y, label: i.name }));
+    setTargetsAbsolute(targets);
+  }, [items, setTargetsAbsolute]);
+
   const completedCount = items.filter(item => item.isCompleted).length;
   const totalCount = items.length;
 
   return (
     <div className={`bg-white border-2 border-gray-300 rounded-lg ${className}`}>
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-4 border-b border-gray-200 bg-[rgba(255,194,32,0.06)]">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-700">Shopping List</h3>
+          <h3 className="text-lg font-semibold text-walmart">Shopping List</h3>
           <div className="text-sm text-gray-500">
             {completedCount}/{totalCount} completed
           </div>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
           <div 
-            className="bg-green-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }}
+            className="h-2 rounded-full transition-all duration-300"
+            style={{ 
+              backgroundColor: 'var(--walmart-blue)',
+              width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`
+            }}
           ></div>
         </div>
       </div>
@@ -107,15 +120,15 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                 
                 <div className="flex-1">
                   <p className={`font-medium ${
-                    item.isCompleted ? 'text-gray-500 line-through' : 'text-gray-800'
+                    item.isCompleted ? 'text-gray-500 line-through' : 'text-contrast'
                   }`}>
                     {item.name}
                   </p>
-                  <p className="text-sm text-gray-500">{item.category}</p>
+                  <p className="text-sm text-contrast-light">{item.category}</p>
                 </div>
                 
                 {item.location && (
-                  <div className="text-xs text-gray-400 ml-2">
+                  <div className="text-xs text-contrast-light ml-2">
                     ({item.location.x}, {item.location.y})
                   </div>
                 )}

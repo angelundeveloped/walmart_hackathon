@@ -4,10 +4,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-blue-600 text-white p-4 shadow-lg">
+      <header className="bg-walmart text-white p-4 shadow-lg">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl font-bold">🛒 Walmart Wavefinder</h1>
-          <p className="text-blue-100 mt-1">AI-Powered In-Store Navigation</p>
+          <p className="opacity-90 mt-1">AI-Powered In-Store Navigation</p>
         </div>
       </header>
 
@@ -28,7 +28,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white p-4 mt-8">
+      <footer className="bg-[#0b4c8c] text-white p-4 mt-8">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-gray-300">
             Walmart Wavefinder - Hackathon Project | AI-Powered Navigation System
