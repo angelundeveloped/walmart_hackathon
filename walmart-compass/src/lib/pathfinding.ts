@@ -29,6 +29,37 @@ export function buildWalkableGrid(layout: StoreLayout): boolean[][] {
   return grid;
 }
 
+// Find the nearest walkable cell to a given point using BFS over the grid
+export function snapToWalkable(layout: StoreLayout, p: GridPoint): GridPoint {
+  const grid = buildWalkableGrid(layout);
+  const { width, height } = layout.map;
+  const inBounds = (q: GridPoint) => q.x >= 0 && q.x < width && q.y >= 0 && q.y < height;
+  const walkable = (q: GridPoint) => grid[q.y]?.[q.x] === true;
+
+  const start: GridPoint = { x: Math.round(p.x), y: Math.round(p.y) };
+  if (inBounds(start) && walkable(start)) return start;
+
+  const visited = new Set<string>();
+  const q: GridPoint[] = [start];
+  const key = (a: GridPoint) => `${a.x},${a.y}`;
+  visited.add(key(start));
+  const deltas = [ {x:1,y:0}, {x:-1,y:0}, {x:0,y:1}, {x:0,y:-1} ];
+
+  while (q.length) {
+    const curr = q.shift()!;
+    for (const d of deltas) {
+      const nb = { x: curr.x + d.x, y: curr.y + d.y };
+      const k = key(nb);
+      if (visited.has(k) || !inBounds(nb)) continue;
+      if (walkable(nb)) return nb;
+      visited.add(k);
+      q.push(nb);
+    }
+  }
+  // Fallback to original
+  return start;
+}
+
 function heuristic(a: GridPoint, b: GridPoint): number {
   // Manhattan heuristic (grid movement 4-directional)
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);

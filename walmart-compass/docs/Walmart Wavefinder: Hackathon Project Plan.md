@@ -35,14 +35,15 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
 * [x] **Pathfinding:**  
   * [x] Integrate a pathfinding library (like pathfinding-js) or implement a simple A* algorithm. The "grid" for the algorithm will be your store layout, with aisles as impassable obstacles.  
   * [x] Create a function calculateRoute(startCoords, itemCoordsList) that generates a path.  
-  * [x] Draw the calculated path on the map.
+  * [x] Draw the calculated path on the map.  
+  * [x] Nearest-first multi-stop routing and snap-to-walkable stability.
 
 ### **✅ Phase 3: AI Integration & UI Polish (Thursday, Sept 25)**
 
 * **Objective:** Connect the chat functionality and make the app interactive.  
 * [] **LLM Chat Integration:**  
   * [] Set up a client-side function to call the Gemini API.  
-  * [] Develop a system prompt that instructs the model to extract product names from user queries and return them in a structured JSON format (e.g., {"items": ["milk", "bread", "eggs"]}).  
+  * [] Develop a system prompt that instructs the model to extract product names from user queries and return them in a structured yaml format (e.g., {"items": ["milk", "bread", "eggs"]}).  
   * [] Connect the ChatWindow.tsx component to this function. Display the conversation flow.  
 * [] **Connecting Logic:**  
   * [] When the LLM returns the list of items, look up their coordinates from store-layout.json.  
