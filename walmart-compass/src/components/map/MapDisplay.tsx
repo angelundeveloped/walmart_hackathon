@@ -40,6 +40,8 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
   const mapCanvasRef = useRef<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [containerHeight, setContainerHeight] = useState<number>(0);
+  const prevPathRef = useRef<{ x: number; y: number }[] | null>(null);
+  const lastComputeRef = useRef<number>(0);
 
   // Observe container size to scale route thickness/markers
   useEffect(() => {
@@ -133,6 +135,12 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     if (!storeLayout) return;
     if (!targets || targets.length === 0) { if (pathPoints !== null) setPathPoints(null); return; }
 
+    // Throttle recomputation to avoid spamming on tiny movements
+    const now = Date.now();
+    if (now - lastComputeRef.current < 120) return;
+    lastComputeRef.current = now;
+
+    // Stabilize by rounding to grid (reduces UWB jitter)
     let currentStart = toGridPoint(estimatedCart?.x ?? trueCart.x, estimatedCart?.y ?? trueCart.y);
     const allPoints: { x: number; y: number }[] = [];
     const remaining = [...targets];
@@ -169,8 +177,11 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
       }
       return true;
     };
-    if (!equal(pathPoints, nextPath)) setPathPoints(nextPath);
-  }, [storeLayout, estimatedCart?.x, estimatedCart?.y, trueCart.x, trueCart.y, targetsKey, pathPoints]);
+    if (!equal(prevPathRef.current, nextPath)) {
+      prevPathRef.current = nextPath;
+      setPathPoints(nextPath);
+    }
+  }, [storeLayout, targetsKey, estimatedCart?.x, estimatedCart?.y, trueCart.x, trueCart.y]);
 
   if (isLoading) {
     return (
