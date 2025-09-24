@@ -6,18 +6,18 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
 ### **✅ Phase 1: Setup & Scaffolding (Tonight, Sept 23\)**
 
 * **Objective:** Get the project structure and basic UI in place.  
-* \[ \] **Environment Setup:** Initialize a new Next.js project with TypeScript.  
-* \[ \] **Directory Structure:** Create folders for components, simulation, lib, etc.  
-* \[ \] **UI Scaffolding:** Create basic, non-functional UI components for the main page:  
-  * \[ \] MapDisplay.tsx: A component that will hold the map canvas or divs.  
-  * \[ \] ChatWindow.tsx: A component for the LLM chat interface.  
-  * \[ \] ShoppingList.tsx: A component to display items and allow check-offs.  
-* \[ \] **Data Modeling:** Define the data structure for the store layout in a JSON file (store-layout.json). Include:  
+* [x] **Environment Setup:** Initialize a new Next.js project with TypeScript.  
+* [x] **Directory Structure:** Create folders for components, simulation, lib, etc.  
+* [x] **UI Scaffolding:** Create basic, non-functional UI components for the main page:  
+  * [x] MapDisplay.tsx: A component that will hold the map canvas or divs.  
+  * [x] ChatWindow.tsx: A component for the LLM chat interface.  
+  * [x] ShoppingList.tsx: A component to display items and allow check-offs.  
+* [] **Data Modeling:** Define the data structure for the store layout in a JSON file (store-layout.json). Include:  
   * Map dimensions.  
   * Aisle coordinates (as polygons or lines for obstacles).  
   * Item locations with name, ID, and (x, y) coordinates.  
   * Simulated UWB anchor locations (x, y).  
-* \[ \] **Initial Commit:** Push the basic project structure to a Git repository.
+* [] **Initial Commit:** Push the basic project structure to a Git repository.
 
 ### **✅ Phase 2: Simulation & Pathfinding Core (Wednesday, Sept 24\)**
 
@@ -27,8 +27,8 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
 * \[ \] **Cart Simulation:**  
   * \[ \] Create a state for the cart ({x, y, heading}).  
   * \[ \] Render the cart on the map as a blue arrow.  
-  * \[ \] Implement keyboard controls (e.g., arrow keys) to manually move the cart's (x, y) state for testing. This is crucial for demonstrating navigation.  
-* \[ \] **UWB Simulation & Positioning:**  
+  * [] Implement keyboard controls (e.g., arrow keys) to manually move the cart's (x, y) state for testing. This is crucial for demonstrating navigation.  
+* [] **UWB Simulation & Positioning:**  
   * \[ \] Write a function that calculates the "true" distance from the simulated cart to each UWB anchor defined in your JSON. Add a small random noise factor to make it more realistic.  
   * \[ \] Implement a positioning algorithm (e.g., trilateration) that takes the simulated distances from at least 3 anchors and *calculates* the cart's position.  
   * \[ \] **Crucially, the arrow on the map should be updated from the *calculated* position, not the keyboard-controlled one, to prove the concept works.**  

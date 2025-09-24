@@ -3,15 +3,15 @@
 A Hackathon Proposal for Walmart México  
 Date: September 26, 2025
 
-### **1\. Executive Summary**
+## **1\. Executive Summary**
 
 Walmart Wavefinder is a proof-of-concept web application designed to revolutionize the in-store customer experience by eliminating the friction of finding products. Leveraging a conversational AI interface and a real-time simulated navigation map, customers can simply state what they need and be guided along the most efficient route through the store. This solution directly addresses the hackathon's challenge by enhancing in-store navigation, improving accessibility, and providing a scalable, innovative framework for the future of retail.
 
-### **2\. The Problem**
+## **2\. The Problem**
 
 Large retail environments like Walmart, while offering vast selection, can be overwhelming to navigate. Customers often spend significant time searching for specific items, leading to frustration and inefficient shopping trips. This challenge is magnified for new shoppers, individuals with disabilities, or those in a hurry. The lack of a dynamic, interactive guidance system is a key opportunity for improving customer satisfaction.
 
-### **3\. Proposed Solution: Wavefinder**
+## **3\. Proposed Solution: Wavefinder**
 
 Wavefinder is a mobile-first web app that provides a seamless "chat-to-checkout" journey.
 
@@ -20,7 +20,7 @@ Wavefinder is a mobile-first web app that provides a seamless "chat-to-checkout"
 * **Real-Time Navigation:** A clear, arrow-like icon represents the user's shopping cart, guiding them turn-by-turn. As they collect items, they can check them off a dynamic list.  
 * **Simulation-First:** For this hackathon, the cart's position is determined by simulating data from Ultra-Wideband (UWB) anchors, proving the viability of the underlying positioning technology.
 
-### **4\. Technical Architecture**
+## **4\. Technical Architecture**
 
 The solution is built on a modern, scalable, and rapidly deployable tech stack.
 
@@ -29,7 +29,7 @@ The solution is built on a modern, scalable, and rapidly deployable tech stack.
 * **Backend (Optional):** FastAPI could be used as a lightweight intermediary for more complex logic or data management, but for the MVP, the frontend communicates directly with the Gemini API.  
 * **Positioning (Simulated):** The core of the demo simulates multiple UWB anchors. The cart's position is calculated in real-time using a trilateration algorithm running on the client, demonstrating how a real-world hardware implementation would function.
 
-**System Diagram:**
+### **System Diagram:**
 
 \[User\] \<--\> \[Next.js Frontend on Phone\]  
    |                |  
@@ -39,7 +39,7 @@ The solution is built on a modern, scalable, and rapidly deployable tech stack.
    |  
    \+------\> \[Pathfinding & UWB Simulation Logic\] (Calculates route & position)
 
-### **5\. Hardware & Cost Estimation (For Real-World Deployment)**
+## **5\. Hardware & Cost Estimation (For Real-World Deployment)**
 
 Transitioning from simulation to a live environment would require the following:
 
@@ -53,7 +53,7 @@ Transitioning from simulation to a live environment would require the following:
   * **Infrastructure & Installation:** Varies significantly but can be estimated at **$10k \- $20k per store.**  
   * **Total Ballpark Per Store:** **$20,000 \- $65,000**
 
-### **6\. Pros & Cons**
+## **6\. Pros & Cons**
 
 **Pros:**
 
@@ -68,7 +68,7 @@ Transitioning from simulation to a live environment would require the following:
 * **Infrastructure Dependency:** Relies on in-store Wi-Fi and the proper functioning of the UWB system.  
 * **Maintenance:** Hardware will require ongoing maintenance and calibration.
 
-### **7\. Caveats & Considerations**
+## **7\. Caveats & Considerations**
 
 By design, this system optimizes for efficiency. This may have unintended consequences:
 
@@ -76,4 +76,4 @@ By design, this system optimizes for efficiency. This may have unintended conseq
 * **Over-Reliance:** Users might become dependent on the system, losing familiarity with the store layout over time.  
   * **Mitigation:** The app could feature a "Discovery Mode" that suggests routes passing by new or on-sale items.
 
-*(This document is a draft and will be completed by the submission deadline.)*
+(This document is a draft and will be completed by the submission deadline.)

@@ -1,5 +1,4 @@
 
-
 # **A Strategic Blueprint for In-Store Navigation: Feasible Solutions for the Walmart Hackathon**
 
 ## **Introduction: A Strategic Framework for Next-Generation In-Store Navigation**
@@ -171,7 +170,7 @@ This solution is highly feasible for a weekend hackathon.
 
 ## **Solution Concept 2: "AR Wayfinder" — Vision-Based Navigation with AR Overlay**
 
-### **Concept Overview & User Journey**
+Concept Overview & User Journey
 
 "AR Wayfinder" offers the most futuristic and visually engaging navigation experience. It transforms the user's phone into a magic lens that overlays digital directions and information directly onto the physical store environment.
 
@@ -194,7 +193,7 @@ This solution introduces significant technical complexity, requiring a real-time
 5. The backend's YOLO model analyzes the frame. If it recognizes a landmark, such as the "Produce" sign, it returns a JSON object containing the landmark's identity and its known, fixed coordinates in the store's map.  
 6. The frontend receives this response and uses the absolute coordinates to re-anchor its AR world space. This "snap" correction ensures the virtual path remains aligned with the physical store layout over long distances.
 
-### **Hackathon Prototyping Roadmap**
+### Hackathon Prototyping Roadmap
 
 This is a high-risk, high-reward path that requires parallel workstreams.
 
@@ -211,7 +210,7 @@ This is a high-risk, high-reward path that requires parallel workstreams.
   * **Integration:** Use the response from the backend to trigger an event in the AR scene. The MVP goal is simple: when the "Aisle 7" sign is recognized, display a text label in AR that says "You are in Aisle 7."  
   * Polish the demo to be as stable as possible for a single, pre-defined path.
 
-### **Strategic Analysis (Pros & Cons)**
+### Strategic Analysis (Pros & Cons)
 
 * **Pros:**  
   * **Highest "Wow" Factor:** This solution is visually stunning and represents a truly next-generation user experience. It would be extremely memorable and impressive to hackathon judges.  
@@ -225,18 +224,18 @@ This is a high-risk, high-reward path that requires parallel workstreams.
 
 ## **Solution Concept 3: "Smart Cart Navigator" — IoT-Enhanced Precision Tracking**
 
-### **Concept Overview & User Journey**
+### Concept Overview & User Journey
 
 The "Smart Cart Navigator" shifts the burden of accurate positioning from the user's phone to the shopping cart itself, resulting in a highly accurate, reliable, and low-effort experience.
 
 The user journey starts when they select a shopping cart. They scan a QR code on the cart's handle, which contains the credentials for the cart's private Wi-Fi network. After a one-time connection, the web application loads on their phone. Their phone now acts as a simple display and control interface, showing a minimap of the store. The cart's position on the map is not an estimation; it is a precise reading derived from the cart's own sensors. The user can mount their phone on the cart's handlebar and follow the real-time location marker, which moves and turns with perfect fidelity as they push the cart. The rest of the experience is similar to "Pathfinder"—they can search for items and receive an optimal path—but the location tracking is virtually flawless.
 
-### **System Architecture & Data Flow**
+### System Architecture & Data Flow
 
 This solution is unique in its inclusion of a dedicated hardware component, which communicates directly with the user's phone in a localized, peer-to-peer fashion.
 
 1. **Hardware (ESP32):** An ESP32 microcontroller, a battery pack, and two rotary wheel encoders are mounted onto the chassis of a shopping cart.22 The encoders are positioned to measure the rotation of two independent wheels.  
-2. **Firmware (Arduino/C++):** Custom firmware runs on the ESP32. Its primary job is to continuously read the pulse counts from the two wheel encoders. By comparing the counts from each wheel, it can calculate not only the distance traveled but also the precise angle of any turns. This data is used to maintain an internal state of the cart's coordinates (x, y) and heading (θ) relative to its starting point. The firmware also implements the ESP32 Web Server pattern, creating a Wi-Fi hotspot and serving a simple webpage or a JSON API endpoint at a static local IP address (e.g., http://192.168.4.1/location).19  
+2. **Firmware (Arduino/C++):** Custom firmware runs on the ESP32. Its primary job is to continuously read the pulse counts from the two wheel encoders. By comparing the counts from each wheel, it can calculate not only the distance traveled but also the precise angle of any turns. This data is used to maintain an internal state of the cart's coordinates (x, y) and heading (θ) relative to its starting point. The firmware also implements the ESP32 Web Server pattern, creating a Wi-Fi hotspot and serving a simple webpage or a JSON API endpoint at a static local IP address (e.g., <http://192.168.4.1/location).19>  
 3. **Frontend (Next.js):** The user's phone connects to the cart's Wi-Fi network. The Next.js application, once loaded, makes continuous asynchronous requests (e.g., every 250ms) to the ESP32's local /location endpoint. It parses the returned coordinate data and updates the cart's icon on the 2D store map.  
 4. **Backend (FastAPI):** The role of the main backend is minimal in the real-time loop. It is used only for the initial download of the store map data and to service on-demand requests for pathfinding calculations, just as in Solution 1\. The critical real-time location data transfer happens directly between the cart and the phone, bypassing any external networks.
 
@@ -245,12 +244,12 @@ This solution is unique in its inclusion of a dedicated hardware component, whic
 1. The user scans a QR code on the cart. The QR code contains Wi-Fi credentials (SSID and password).  
 2. The user's phone connects to the cart's Wi-Fi network and navigates to the web app URL (which could also be in the QR code).  
 3. The frontend loads the store map from the main FastAPI backend (this is its only interaction with the outside internet).  
-4. The frontend begins polling the ESP32's local IP address (http://192.168.4.1/location).  
+4. The frontend begins polling the ESP32's local IP address (<http://192.168.4.1/location>).  
 5. The ESP32's web server responds to each poll with the latest (x, y, θ) coordinates calculated from its wheel encoders.  
 6. The frontend updates the cart's position on the map.  
 7. To initialize its absolute position, the user is prompted to scan a single QR code at a "calibration station" near the cart corral. This tells the cart its starting coordinates.
 
-### **Hackathon Prototyping Roadmap**
+### Hackathon Prototyping Roadmap
 
 This path requires a team comfortable with both hardware and software.
 
@@ -267,7 +266,7 @@ This path requires a team comfortable with both hardware and software.
   * Refine the user experience for pairing (QR code) and initial calibration.  
   * Practice the full demonstration flow: pair phone, calibrate cart, navigate to an item.
 
-### **Strategic Analysis (Pros & Cons)**
+### Strategic Analysis (Pros & Cons)
 
 * **Pros:**  
   * **Highest Accuracy and Reliability:** This solution provides ground-truth data, making it immune to phone sensor errors, how the user holds their phone, or other environmental factors. It is by far the most robust and precise approach.  
@@ -282,7 +281,7 @@ This path requires a team comfortable with both hardware and software.
 
 The choice of which solution to pursue in a hackathon is a critical strategic decision that must balance ambition with pragmatism. Each of the three proposed concepts occupies a different point on the spectrum of risk versus reward. The following matrix provides a direct comparison across the key success metrics to aid in this decision-making process.
 
-### **Solution Comparison Matrix**
+### Solution Comparison Matrix
 
 | Metric | Pathfinder (IMU+QR) | AR Wayfinder (Vision+AR) | Smart Cart Navigator (IoT) |
 | :---- | :---- | :---- | :---- |
@@ -292,7 +291,7 @@ The choice of which solution to pursue in a hackathon is a critical strategic de
 | **Innovation & "Wow" Factor** | **Medium (3/5):** A solid, practical application of existing tech. Smart but not flashy. | **High (5/5):** The most visually impressive and futuristic solution. A clear winner for presentation points. | **High (4/5):** The "smart hardware" angle is highly innovative and opens up a platform of possibilities. |
 | **Scalability & Cost (Post-Hackathon)** | **High (5/5):** Extremely low cost, requiring only printed QR codes. | **High (4/5):** Pure software solution, but requires ongoing CV model maintenance and server costs for inference. | **Low (1/5):** High capital expenditure to retrofit thousands of carts. Significant maintenance overhead. |
 
-### **Final Recommendation for the Walmart Hackathon**
+### Final Recommendation for the Walmart Hackathon
 
 Based on the comparative analysis, the following strategic recommendations are offered to the hackathon team, tailored to different risk appetites and team strengths.
 
@@ -305,7 +304,7 @@ Based on the comparative analysis, the following strategic recommendations are o
 * Hybrid Recommendation for an Ambitious Team:  
   A powerful strategy is to pursue a hybrid approach. The team should begin by building the complete backend and frontend architecture for Solution 1: Pathfinder. This ensures a solid, functional baseline product. Once this core is stable, a sub-team can be tasked with a "stretch goal": developing an AR view (Solution 2: AR Wayfinder) that consumes the exact same pathfinding data from the backend. The final presentation could then showcase a practical 2D map mode for everyday use and an innovative AR mode for featured products or promotions. This strategy demonstrates both practicality and vision, mitigating the risk of the AR component failing while still allowing the team to showcase their full range of technical capabilities.
 
-#### **Works cited**
+### Works cited
 
 1. indoornavigation.com | Indoor Wayfinding Using BLE, accessed September 23, 2025, [https://indoornavigation.com/](https://indoornavigation.com/)  
 2. Dead reckoning \- Wikipedia, accessed September 23, 2025, [https://en.wikipedia.org/wiki/Dead\_reckoning](https://en.wikipedia.org/wiki/Dead_reckoning)  

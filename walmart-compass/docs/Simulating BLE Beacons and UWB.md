@@ -1,5 +1,4 @@
 
-
 # **A Strategic Guide to Simulating BLE and UWB Systems for Application Demonstration**
 
 ## **Executive Summary**
@@ -320,13 +319,13 @@ While simulation is a powerful and necessary tool, it is an approximation of rea
 
 The fidelity of a simulation is limited by the complexity of the phenomena it attempts to model. For wireless systems like BLE and UWB, the real world introduces a host of variables that are difficult, if not impossible, to replicate perfectly in software.
 
-**BLE Performance**
+BLE Performance
 
 * **Ideal vs. Real Chipsets:** A significant discrepancy arises from the behavior of the BLE chipsets themselves. Simulations are often based on the ideal behavior described in the Bluetooth Core Specification. However, empirical studies of off-the-shelf hardware have revealed non-ideal behaviors, most notably the presence of unexpected "scanning gaps" where the receiver momentarily stops listening, even during a supposedly continuous scan. These gaps are not part of the standard but are artifacts of the chipset's implementation and can severely degrade the speed and reliability of device discovery. A simulation that does not account for these non-idealities will produce overly optimistic results for discovery latency.1  
 * **Environmental Factors:** The 2.4 GHz spectrum is notoriously noisy. Real-world BLE range and reliability are heavily impacted by co-channel interference from Wi-Fi networks, which can cause packet loss, and by multipath fading caused by RF signals reflecting off surfaces.21 While a simulation can model path loss, it typically cannot replicate the chaotic and unpredictable nature of RF interference in a crowded environment. A simulated RSSI curve may show a smooth decay with distance, whereas a real signal will be far more erratic.49  
 * **Throughput and Power Consumption:** The theoretical maximum throughput of BLE is rarely achieved in practice due to protocol overhead, application processing delays, and the limitations of the specific BLE stack being used.50 Similarly, while BLE is low-energy, the power consumption of a real device is a complex equation involving not just the radio but also processors, displays, and other peripherals, which a simple BLE simulation will not capture.52
 
-**UWB Performance**
+UWB Performance
 
 * **Clock Drift and Synchronization:** TDOA-based localization, the cornerstone of UWB RTLS, depends on the assumption that the clocks of all fixed anchors are perfectly synchronized. In reality, the inexpensive crystal oscillators used in commercial UWB modules drift relative to one another. This clock drift is a primary source of error and must be continuously compensated for using sophisticated algorithms like Kalman filters. Simulating the nuanced, temperature-dependent drift of multiple oscillators and the corresponding correction algorithms is a highly complex task that is often abstracted away in simpler models.53  
 * **NLOS and Multipath Complexity:** While simulators can model a binary LOS/NLOS state, the real world is far more complex. The effect of an NLOS obstruction depends heavily on its material composition (e.g., drywall vs. concrete vs. metal) and its precise geometry. Multipath reflections create a complex Channel Impulse Response (CIR) that can distort the UWB pulse and make it difficult for the receiver to identify the true first-path arrival time, leading to significant errors. Real-world accuracy can degrade from a claimed 10-30 cm in ideal LOS conditions to well over a meter in challenging NLOS environments.41  
@@ -367,7 +366,7 @@ This report has detailed a comprehensive strategy for simulating both BLE and UW
 
 Ultimately, the simulation framework developed to overcome this short-term hardware shortage should be viewed as a permanent asset. It will prove invaluable for future regression testing, enabling the team to validate application changes without requiring a full hardware testbed. It will accelerate the onboarding of new developers by providing them with a self-contained environment to work in. Finally, it can be integrated into a Continuous Integration/Continuous Deployment (CI/CD) pipeline, allowing for automated validation of every code commit. By embracing simulation as a core engineering practice, the team can convert a potential roadblock into a catalyst for building a higher-quality, more resilient system.
 
-#### **Works cited**
+## Works cited
 
 1. Analytical and Experimental Performance Evaluation of BLE ..., accessed September 23, 2025, [https://pmc.ncbi.nlm.nih.gov/articles/PMC5375785/](https://pmc.ncbi.nlm.nih.gov/articles/PMC5375785/)  
 2. Developing Beacons with Bluetooth ® Low Energy BLE Technology \- Silicon Labs, accessed September 23, 2025, [https://www.silabs.com/whitepapers/developing-beacons-with-bluetooth-low-energy-technology](https://www.silabs.com/whitepapers/developing-beacons-with-bluetooth-low-energy-technology)  
