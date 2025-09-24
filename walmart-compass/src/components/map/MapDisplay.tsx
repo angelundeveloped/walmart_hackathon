@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { StoreLayout, StoreItem } from '@/types/store';
 import { loadStoreLayout } from '@/lib/store-data';
 import { simulateAndEstimate, AnchorDistance } from '@/simulation/uwb';
-import { findPath, toGridPoint } from '@/lib/pathfinding';
+import { findPath, toGridPoint, snapToWalkable } from '@/lib/pathfinding';
 import { useSelection } from '@/lib/selection';
 
 interface MapDisplayProps {
@@ -141,7 +141,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     lastComputeRef.current = now;
 
     // Stabilize by rounding to grid (reduces UWB jitter)
-    let currentStart = toGridPoint(estimatedCart?.x ?? trueCart.x, estimatedCart?.y ?? trueCart.y);
+    let currentStart = snapToWalkable(storeLayout, toGridPoint(estimatedCart?.x ?? trueCart.x, estimatedCart?.y ?? trueCart.y));
     const allPoints: { x: number; y: number }[] = [];
     const remaining = [...targets];
 
@@ -156,7 +156,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
         if (d < nearestD) { nearestD = d; nearestIdx = i; }
       }
       const t = remaining.splice(nearestIdx, 1)[0];
-      const goal = toGridPoint(t.x, t.y);
+      const goal = snapToWalkable(storeLayout, toGridPoint(t.x, t.y));
       const seg = findPath(storeLayout, currentStart, goal);
       if (seg.length > 0) {
         if (allPoints.length > 0) seg.shift(); // avoid duplicate node at joins
