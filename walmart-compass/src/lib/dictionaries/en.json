@@ -1,0 +1,71 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done"
+  },
+  "header": {
+    "title": "Walmart Wavefinder",
+    "subtitle": "AI-Powered In-Store Navigation",
+    "beta": "BETA",
+    "uwbActive": "UWB Active",
+    "aiReady": "AI Ready"
+  },
+  "map": {
+    "title": "Store Map",
+    "legend": "Map Legend & Preferences",
+    "preferences": "Preferences",
+    "simple": "Simple",
+    "advanced": "Advanced",
+    "sections": "Sections",
+    "dietary": "Dietary",
+    "brands": "Brands",
+    "cart": "Cart",
+    "items": "Items",
+    "route": "Route",
+    "anchors": "Anchors",
+    "services": "Services",
+    "checkout": "Checkout",
+    "direction": "Direction",
+    "controls": "Tap legend items to toggle • Use arrow keys to move cart"
+  },
+  "chat": {
+    "placeholder": "Ask me what you need to find...",
+    "send": "Send",
+    "thinking": "AI is thinking...",
+    "error": "Sorry, I had trouble understanding that. Please try again."
+  },
+  "shopping": {
+    "title": "Shopping List",
+    "empty": "Your shopping list is empty. Ask me what you need to find!",
+    "similar": "Similar",
+    "remove": "Remove",
+    "completed": "Completed"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signInWithGoogle": "Sign in with Google"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "mapDisplay": "Map Display",
+    "showItems": "Show Items",
+    "showRoute": "Show Route",
+    "showAnchors": "Show UWB Anchors",
+    "showServices": "Show Services",
+    "dietaryPreferences": "Dietary Preferences",
+    "brandPreferences": "Brand Preferences",
+    "organicPreference": "Organic Preference",
+    "preferOrganic": "Prefer organic products when available"
+  },
+  "footer": {
+    "description": "Walmart Wavefinder - Hackathon Project | AI-Powered Navigation System"
+  }
+}

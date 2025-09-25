@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelection } from '@/lib/selection';
 import { getSimilarItems } from '@/lib/llm';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ShoppingItem {
   id: string;
@@ -21,6 +22,7 @@ interface ShoppingListProps {
 
 export default function ShoppingList({ className = '' }: ShoppingListProps) {
   const { setTargetsAbsolute, pendingItems, cartPosition } = useSelection();
+  const { dictionary } = useLanguage();
 
   // Get category icon
   const getCategoryIcon = (category: string) => {
@@ -76,11 +78,15 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
     setItems(prev => prev.filter(i => i.id !== id));
   };
 
-  // Sort items by proximity to cart position (closest first)
+  // Sort items: incomplete first (by proximity), then completed at bottom
   const sortedItems = React.useMemo(() => {
     if (!cartPosition) return items;
     
-    return [...items].sort((a, b) => {
+    const incompleteItems = items.filter(item => !item.isCompleted);
+    const completedItems = items.filter(item => item.isCompleted);
+    
+    // Sort incomplete items by proximity (closest first)
+    const sortedIncomplete = [...incompleteItems].sort((a, b) => {
       if (!a.location || !b.location) return 0;
       
       const distA = Math.sqrt(
@@ -94,6 +100,9 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
       
       return distA - distB;
     });
+    
+    // Completed items go to the bottom (no sorting needed)
+    return [...sortedIncomplete, ...completedItems];
   }, [items, cartPosition]);
 
   // Sync selections to shared context in one atomic update + merge parsed pendingItems
@@ -126,19 +135,18 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
   const totalCount = items.length;
 
   return (
-    <div className={`bg-white border-2 border-gray-300 rounded-lg ${className}`}>
+    <div className={`bg-white border-2 border-blue-200 rounded-lg ${className}`}>
       <div className="p-4 border-b border-gray-200 bg-[rgba(255,194,32,0.06)]">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-walmart">Shopping List</h3>
+          <h3 className="text-lg font-semibold text-walmart">{dictionary?.shopping.title || "Shopping List"}</h3>
           <div className="text-sm text-contrast-muted">
             {completedCount}/{totalCount} completed
           </div>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
           <div 
-            className="h-2 rounded-full transition-all duration-300"
+            className="bg-walmart-yellow h-2 rounded-full transition-all duration-500 shadow-sm"
             style={{ 
-              backgroundColor: 'var(--walmart-blue)',
               width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`
             }}
           ></div>
@@ -154,23 +162,26 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            {sortedItems.map((item) => (
-              <div
-                key={item.id}
-                className={`flex items-center p-3 rounded-lg border transition-all duration-200 ${
-                  item.isCompleted
-                    ? 'bg-gray-50 border-gray-200'
-                    : 'bg-white border-gray-300 hover:border-blue-300'
-                }`}
-              >
-                <button
-                  onClick={() => toggleItem(item.id)}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center mr-3 transition-colors ${
-                    item.isCompleted
-                      ? 'bg-green-500 border-green-500 text-white'
-                      : 'border-gray-300 hover:border-green-500'
-                  }`}
-                >
+                     {sortedItems.map((item, index) => (
+                       <div
+                         key={item.id}
+                         className={`flex items-center p-3 rounded-lg border transition-all duration-300 hover:shadow-md transform hover:scale-[1.02] animate-fadeInUp ${
+                           item.isCompleted
+                             ? 'bg-blue-50 border-blue-200 opacity-75'
+                             : 'bg-white border-blue-200 hover:border-blue-400 text-black'
+                         }`}
+                         style={{
+                           animationDelay: `${index * 50}ms`
+                         }}
+                       >
+                         <button
+                           onClick={() => toggleItem(item.id)}
+                           className={`w-5 h-5 rounded border-2 flex items-center justify-center mr-3 transition-all duration-300 ${
+                             item.isCompleted
+                               ? 'bg-green-500 border-green-500 text-white animate-bounce-slow'
+                               : 'border-blue-300 hover:border-green-500 hover:scale-110'
+                           }`}
+                         >
                   {item.isCompleted && (
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -186,19 +197,19 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                       {item.name}
                     </p>
                     {cartPosition && !item.isCompleted && sortedItems.indexOf(item) === 0 && (
-                      <span className="text-xs bg-walmart text-white px-2 py-1 rounded-full">
+                      <span className="text-xs bg-walmart-yellow text-walmart px-2 py-1 rounded-full font-semibold">
                         Closest
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-sm">{getCategoryIcon(item.category)}</span>
-                    <p className="text-sm text-contrast-light">{item.category}</p>
+                    <p className="text-sm text-gray-600">{item.category}</p>
                   </div>
                 </div>
                 
                 {item.location && (
-                  <div className="text-xs text-contrast-light ml-2">
+                  <div className="text-xs text-gray-600 ml-2">
                     {cartPosition ? (
                       <span>
                         {Math.round(Math.sqrt(
@@ -212,7 +223,7 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                   </div>
                 )}
 
-                <div className="flex gap-1 ml-3">
+                <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 ml-2 sm:ml-3">
                   <button
                     onClick={async () => {
                       try {
@@ -227,17 +238,17 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                         console.error('Error getting similar items:', error);
                       }
                     }}
-                    className="text-xs px-2 py-1 rounded border border-blue-300 hover:bg-blue-50 text-blue-600"
+                    className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1 rounded border border-blue-300 hover:bg-blue-50 text-blue-700 hover:text-blue-800 font-medium touch-manipulation"
                     title="Find similar items"
                   >
-                    Similar
+                    {dictionary?.shopping.similar || "Similar"}
                   </button>
                   <button
                     onClick={() => removeItem(item.id)}
-                    className="text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-50"
+                    className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-1 rounded border border-red-300 hover:bg-red-50 text-red-600 hover:text-red-700 touch-manipulation"
                     aria-label={`Remove ${item.name}`}
                   >
-                    Remove
+                    {dictionary?.shopping.remove || "Remove"}
                   </button>
                 </div>
               </div>

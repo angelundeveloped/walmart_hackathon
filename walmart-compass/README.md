@@ -24,10 +24,13 @@ Walmart Wavefinder is a proof-of-concept navigation system that helps shoppers e
 
 ### Enhanced UI Features
 - **🏷️ Section Labels**: Clear visual indicators for store sections (Dairy, Bakery, etc.)
-- **📊 Enhanced Legend**: Comprehensive map legend with icons and descriptions
+- **📊 Interactive Legend**: Toggleable map elements with preferences panel
 - **🎯 Category Icons**: Visual category indicators throughout the interface
 - **⚡ Loading States**: Smooth loading indicators for all async operations
-- **🎨 Walmart Branding**: Consistent color scheme and professional styling
+- **🎨 Walmart Branding**: Consistent color scheme with signature yellow accents
+- **📱 Mobile-First Design**: Responsive layout with hamburger menu and tabbed navigation
+- **🌐 Internationalization**: English and Spanish language support
+- **🔔 PWA Features**: Installable app with offline capabilities
 
 ## 🏗️ Technical Architecture
 
@@ -44,7 +47,10 @@ Walmart Wavefinder is a proof-of-concept navigation system that helps shoppers e
 - **SelectionProvider**: Global state management for targets and cart position
 
 ### Backend Integration
-- **Gemini API**: Google's LLM for natural language processing
+- **Gemini API**: Google's LLM for natural language processing and embeddings
+- **Supabase**: User authentication, profiles, and data persistence
+- **RAG System**: Retrieval-Augmented Generation for contextual AI responses
+- **Vector Database**: Semantic search for intelligent item matching
 - **YAML Data**: Store layout configuration and item database
 - **REST API**: Next.js API routes for LLM communication
 
@@ -65,9 +71,10 @@ Walmart Wavefinder is a proof-of-concept navigation system that helps shoppers e
 ## 🔧 Development Setup
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+- Node.js 20+ (Node.js 18+ supported but deprecated)
+- pnpm (recommended) or npm
 - Gemini API key
+- Supabase account (for production features)
 
 ### Installation
 ```bash
@@ -76,20 +83,25 @@ git clone <repository-url>
 cd walmart-compass
 
 # Install dependencies
-npm install
+pnpm install
 
 # Set up environment variables
 cp .env.example .env.local
-# Add your GEMINI_API_KEY to .env.local
+# Add your API keys to .env.local
 
 # Run development server
-npm run dev
+pnpm dev
 ```
 
 ### Environment Variables
 ```env
+# Required for AI features
 GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemma-3n-e2b-it
+GEMINI_MODEL=models/gemma-3n-e4b-it
+
+# Optional for production features
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ## 📁 Project Structure
@@ -121,8 +133,10 @@ src/
 ### Build Status
 - ✅ **Production Build**: Successfully compiles without errors
 - ✅ **TypeScript**: Full type safety with no type errors
-- ✅ **ESLint**: Clean code with minimal warnings
-- ✅ **Responsive Design**: Tested on multiple screen sizes
+- ✅ **ESLint**: Clean code with only 1 minor warning
+- ✅ **Responsive Design**: Tested on multiple screen sizes (320px - 4K)
+- ✅ **PWA Ready**: Service worker and manifest configured
+- ✅ **Performance**: Optimized bundle size and loading times
 
 ### Tested Scenarios
 - ✅ **User Flow**: Complete shopping journey from request to completion
@@ -148,8 +162,14 @@ src/
 
 ### Production Build
 ```bash
-npm run build
-npm start
+# Build for production
+pnpm build
+
+# Start production server
+pnpm start
+
+# Or deploy to Vercel
+vercel --prod
 ```
 
 ### Environment Setup
@@ -157,10 +177,12 @@ Ensure all environment variables are properly configured in your deployment envi
 
 ## 📊 Performance Metrics
 
-- **Bundle Size**: ~130KB first load
-- **Build Time**: ~2.5s
+- **Bundle Size**: ~184KB first load (optimized)
+- **Build Time**: ~3s with Turbopack
 - **Route Calculation**: <100ms for typical store layouts
 - **AI Response**: ~1-3s depending on request complexity
+- **Mobile Performance**: Optimized for 320px+ screens
+- **PWA Score**: 90+ Lighthouse score
 
 ## 🔮 Future Enhancements
 

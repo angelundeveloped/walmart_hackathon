@@ -1,0 +1,71 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "done": "Hecho"
+  },
+  "header": {
+    "title": "Walmart Wavefinder",
+    "subtitle": "Navegación Inteligente en Tienda",
+    "beta": "BETA",
+    "uwbActive": "UWB Activo",
+    "aiReady": "IA Lista"
+  },
+  "map": {
+    "title": "Mapa de la Tienda",
+    "legend": "Leyenda del Mapa y Preferencias",
+    "preferences": "Preferencias",
+    "simple": "Simple",
+    "advanced": "Avanzado",
+    "sections": "Secciones",
+    "dietary": "Dietético",
+    "brands": "Marcas",
+    "cart": "Carrito",
+    "items": "Artículos",
+    "route": "Ruta",
+    "anchors": "Anclas",
+    "services": "Servicios",
+    "checkout": "Caja",
+    "direction": "Dirección",
+    "controls": "Toca elementos de la leyenda para alternar • Usa las flechas para mover el carrito"
+  },
+  "chat": {
+    "placeholder": "Pregúntame qué necesitas encontrar...",
+    "send": "Enviar",
+    "thinking": "La IA está pensando...",
+    "error": "Lo siento, tuve problemas para entender eso. Por favor intenta de nuevo."
+  },
+  "shopping": {
+    "title": "Lista de Compras",
+    "empty": "Tu lista de compras está vacía. ¡Pregúntame qué necesitas encontrar!",
+    "similar": "Similar",
+    "remove": "Eliminar",
+    "completed": "Completado"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signOut": "Cerrar Sesión",
+    "signInWithGoogle": "Iniciar sesión con Google"
+  },
+  "preferences": {
+    "title": "Preferencias",
+    "mapDisplay": "Visualización del Mapa",
+    "showItems": "Mostrar Artículos",
+    "showRoute": "Mostrar Ruta",
+    "showAnchors": "Mostrar Anclas UWB",
+    "showServices": "Mostrar Servicios",
+    "dietaryPreferences": "Preferencias Dietéticas",
+    "brandPreferences": "Preferencias de Marca",
+    "organicPreference": "Preferencia Orgánica",
+    "preferOrganic": "Preferir productos orgánicos cuando estén disponibles"
+  },
+  "footer": {
+    "description": "Walmart Wavefinder - Proyecto de Hackathon | Sistema de Navegación con IA"
+  }
+}

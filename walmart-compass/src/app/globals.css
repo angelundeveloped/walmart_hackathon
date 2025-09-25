@@ -67,8 +67,221 @@ body {
   filter: drop-shadow(0 0 3px rgba(0,113,206,0.5));
 }
 
-/* Better text contrast */
-.text-contrast { color: #1f2937; }
-.text-contrast-light { color: #2d3748; }
+/* Better text contrast - darker colors for better readability */
+.text-contrast { color: #111827; }
+.text-contrast-light { color: #1f2937; }
 .text-contrast-medium { color: #374151; }
 .text-contrast-muted { color: #4b5563; }
+
+/* High contrast alternatives for better accessibility */
+.text-dark { color: #000000; }
+.text-very-dark { color: #0f172a; }
+.text-readable { color: #1e293b; }
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0,0,0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s infinite;
+}
+
+/* Mobile Touch Improvements */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Better mobile button sizing */
+@media (max-width: 640px) {
+  .mobile-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .mobile-text {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .mobile-padding {
+    padding: 12px 16px;
+  }
+}
+
+/* Extra small mobile optimizations */
+@media (max-width: 375px) {
+  /* Reduce padding and margins for very small screens */
+  .container {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  
+  /* Make map labels even smaller */
+  .map-label {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+  
+  /* Reduce legend spacing */
+  .legend-item {
+    padding: 2px 4px;
+    gap: 2px;
+  }
+  
+  /* Smaller icons on very small screens */
+  .icon-xs {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Prevent element overflow and improve containment */
+.overflow-container {
+  overflow: hidden;
+  contain: layout;
+}
+
+/* Ensure icons stay within their containers */
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  line-height: 1;
+}
+
+/* Prevent text from overflowing containers */
+.text-container {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Ensure proper line height for emojis and icons */
+.emoji-text {
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Map container containment */
+.map-container {
+  position: relative;
+  overflow: hidden;
+  contain: layout style;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+.map-canvas {
+  position: relative;
+  overflow: hidden;
+  contain: layout;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Ensure absolutely positioned elements stay within bounds */
+.map-element {
+  position: absolute;
+  contain: layout;
+  box-sizing: border-box;
+}
+
+/* Desktop layout improvements */
+@media (min-width: 1280px) {
+  .desktop-grid {
+    gap: 2rem;
+  }
+  
+  .map-section {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  .sidebar-section {
+    max-width: 100%;
+    overflow: hidden;
+  }
+}
+
+/* Mobile UX Improvements */
+.mobile-menu-overlay {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.mobile-tab-active {
+  position: relative;
+}
+
+.mobile-tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background-color: var(--walmart-blue);
+  border-radius: 1px;
+}
+
+/* Smooth collapsible animations */
+.collapsible-content {
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+/* Mobile touch improvements */
+.mobile-touch {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Hamburger menu animation */
+.hamburger-line {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}

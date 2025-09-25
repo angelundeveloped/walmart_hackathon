@@ -1,5 +1,7 @@
 // Vector Database for Smart Item Matching
-// Simple implementation using local embeddings and cosine similarity
+// Implementation using Gemini embeddings and cosine similarity
+
+import { createEmbedding } from './gemini-embeddings';
 
 export interface ItemEmbedding {
   id: string;
@@ -21,8 +23,18 @@ class VectorDatabase {
   private items: ItemEmbedding[] = [];
   private isInitialized = false;
 
-  // Simple text-to-vector conversion (simplified for demo)
-  private textToVector(text: string): number[] {
+  // Create embedding using Gemini API with fallback
+  private async textToVector(text: string): Promise<number[]> {
+    try {
+      return await createEmbedding(text);
+    } catch (error) {
+      console.error('Failed to create Gemini embedding, using fallback:', error);
+      return this.createFallbackEmbedding(text);
+    }
+  }
+
+  // Fallback embedding function (simple bag-of-words)
+  private createFallbackEmbedding(text: string): number[] {
     const words = text.toLowerCase()
       .replace(/[^\w\s]/g, '')
       .split(/\s+/)
@@ -144,17 +156,16 @@ class VectorDatabase {
       }
       
       // Create embeddings for each item
-      this.items = items.map(item => ({
+      this.items = await Promise.all(items.map(async (item) => ({
         ...item,
         description: `${item.name} ${item.category}`,
-        embedding: this.textToVector(`${item.name} ${item.category}`)
-      }));
+        embedding: await this.textToVector(`${item.name} ${item.category}`)
+      })));
       
       this.isInitialized = true;
-      console.log(`Vector database initialized with ${this.items.length} items`);
       
-    } catch (error) {
-      console.error('Failed to initialize vector database:', error);
+    } catch {
+      // Vector database initialization failed
     }
   }
 
@@ -164,7 +175,7 @@ class VectorDatabase {
       await this.initialize();
     }
     
-    const queryVector = this.textToVector(query);
+    const queryVector = await this.textToVector(query);
     const results: SearchResult[] = [];
     
     for (const item of this.items) {

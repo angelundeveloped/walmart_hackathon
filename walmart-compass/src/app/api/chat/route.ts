@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const DEFAULT_MODEL = 'gemini-1.5-flash-latest';
+const DEFAULT_MODEL = 'models/gemma-3n-e4b-it';
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 export async function POST(req: NextRequest) {
@@ -71,7 +71,10 @@ Remember: Be natural, helpful, and use the exact item names from our inventory!`
       ],
     };
 
-    const endpoint = `${BASE_URL}/${model}:generateContent`;
+    // For learnlm models, use a different endpoint format
+    const endpoint = model.startsWith('models/') 
+      ? `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent`
+      : `${BASE_URL}/${model}:generateContent`;
     const res = await fetch(`${endpoint}?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
