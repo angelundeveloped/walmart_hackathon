@@ -404,20 +404,44 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
               />
             ))}
 
-            {/* Selected target pins */}
+            {/* Selected target pins with labels */}
             {targets.map(t => (
               <div
                 key={t.id}
-                className="absolute w-3.5 h-3.5 rounded-full border-2"
+                className="absolute"
                 style={{
-                  backgroundColor: WALMART_YELLOW,
-                  borderColor: '#b38600',
                   left: `${(t.x / map.width) * 100}%`,
                   top: `${(t.y / map.height) * 100}%`,
                   transform: 'translate(-50%, -50%)'
                 }}
-                title={t.label ?? 'Target'}
-              />
+              >
+                {/* Item label above the pin */}
+                <div
+                  className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-blue-200 rounded-lg px-3 py-1.5 text-xs font-semibold text-contrast shadow-lg whitespace-nowrap z-10"
+                  style={{ 
+                    minWidth: 'max-content',
+                    backgroundColor: '#f8fafc',
+                    borderColor: WALMART_BLUE,
+                    color: '#1e40af'
+                  }}
+                >
+                  {t.label ?? 'Target'}
+                  {/* Arrow pointing down to pin */}
+                  <div 
+                    className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent"
+                    style={{ borderTopColor: WALMART_BLUE }}
+                  ></div>
+                </div>
+                {/* Pin */}
+                <div
+                  className="w-3.5 h-3.5 rounded-full border-2"
+                  style={{
+                    backgroundColor: WALMART_YELLOW,
+                    borderColor: '#b38600'
+                  }}
+                  title={t.label ?? 'Target'}
+                />
+              </div>
             ))}
 
             {/* True cart (ghost) */}
