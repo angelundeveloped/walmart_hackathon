@@ -101,7 +101,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
         <div className="space-y-4">
           {!isClient ? (
             <div className="flex justify-start">
-              <div className="max-w-[80%] p-3 rounded-lg bg-gray-100 text-gray-800">
+              <div className="max-w-[80%] p-3 rounded-lg bg-gray-100 text-contrast">
                 <p className="text-sm">Loading chat...</p>
               </div>
             </div>

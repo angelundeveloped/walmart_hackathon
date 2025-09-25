@@ -69,4 +69,6 @@ body {
 
 /* Better text contrast */
 .text-contrast { color: #1f2937; }
-.text-contrast-light { color: #374151; }
+.text-contrast-light { color: #2d3748; }
+.text-contrast-medium { color: #374151; }
+.text-contrast-muted { color: #4b5563; }

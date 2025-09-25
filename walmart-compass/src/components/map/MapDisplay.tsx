@@ -21,7 +21,6 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
   // Walmart-inspired palette
   const WALMART_BLUE = '#0071CE';
   const WALMART_YELLOW = '#FFC220';
-  const GRAY_DARK = '#1f2937';
 
   const { targets, setCartPosition } = useSelection();
   const [storeLayout, setStoreLayout] = useState<StoreLayout | null>(null);
@@ -190,9 +189,9 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     return (
       <div className={`bg-gray-100 border-2 border-gray-300 rounded-lg ${className}`}>
         <div className="p-4">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Store Map</h3>
+          <h3 className="text-lg font-semibold text-contrast mb-2">Store Map</h3>
           <div className="bg-white border border-gray-200 rounded p-4 min-h-[400px] flex items-center justify-center">
-            <div className="text-center text-gray-500">
+            <div className="text-center text-contrast-muted">
               <div className="animate-spin text-4xl mb-2">⏳</div>
               <p>Loading store layout...</p>
             </div>
@@ -206,9 +205,9 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     return (
       <div className={`bg-gray-100 border-2 border-gray-300 rounded-lg ${className}`}>
         <div className="p-4">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Store Map</h3>
+          <h3 className="text-lg font-semibold text-contrast mb-2">Store Map</h3>
           <div className="bg-white border border-gray-200 rounded p-4 min-h-[400px] flex items-center justify-center">
-            <div className="text-center text-red-500">
+            <div className="text-center text-red-600">
               <div className="text-4xl mb-2">❌</div>
               <p>Failed to load store layout</p>
             </div>

@@ -30,7 +30,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-[#0b4c8c] text-white p-4 mt-8">
         <div className="max-w-7xl mx-auto text-center">
-          <p className="text-gray-300">
+          <p className="text-blue-100">
             Walmart Wavefinder - Hackathon Project | AI-Powered Navigation System
           </p>
         </div>

@@ -112,7 +112,7 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
       <div className="p-4 border-b border-gray-200 bg-[rgba(255,194,32,0.06)]">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-walmart">Shopping List</h3>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-contrast-muted">
             {completedCount}/{totalCount} completed
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
       
       <div className="p-4">
         {items.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-contrast-muted py-8">
             <div className="text-4xl mb-2">🛒</div>
             <p>No items in your list yet</p>
             <p className="text-sm mt-1">Ask the assistant to add items!</p>
@@ -163,7 +163,7 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className={`font-medium ${
-                      item.isCompleted ? 'text-gray-500 line-through' : 'text-contrast'
+                      item.isCompleted ? 'text-contrast-muted line-through' : 'text-contrast'
                     }`}>
                       {item.name}
                     </p>
