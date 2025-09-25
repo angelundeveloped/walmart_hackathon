@@ -54,10 +54,10 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
   * [x] Implement the check-off feature. When an item is checked, it could be greyed out on the list and its pin removed from the map.  
   * [x] Items should be deletable.
   * [x] Items should be organized by proximity.
-* [] **UI/UX Refinement:**  
-  * [] Ensure the blue arrow smoothly follows the path and rotates to show direction.  
-  * [] Add loading states for the AI response and route calculation.  
-  * [] Make the UI responsive and usable on mobile screen sizes.
+* [x] **UI/UX Refinement:**  
+  * [x] Ensure the blue arrow smoothly follows the path and rotates to show direction.  
+  * [x] Add loading states for the AI response and route calculation.  
+  * [x] Make the UI responsive and usable on mobile screen sizes.
 
 ### **✅ Phase 4: Finalization & Documentation (Friday, Sept 26)**
 

@@ -19,6 +19,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isClient, setIsClient] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { setTargetsAbsolute, setPendingItems } = useSelection();
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || isProcessing) return;
 
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -46,6 +47,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
 
     setMessages(prev => [...prev, newMessage]);
     setInputText('');
+    setIsProcessing(true);
 
     try {
       const reply = await askGemini(newMessage.text);
@@ -81,6 +83,8 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -128,6 +132,18 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
               </div>
             ))
           )}
+          
+          {/* Loading indicator */}
+          {isProcessing && (
+            <div className="flex justify-start">
+              <div className="max-w-[80%] p-3 rounded-lg bg-white border border-gray-200 text-contrast shadow-sm">
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin text-sm">⏳</div>
+                  <p className="text-sm">Processing your request...</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       
@@ -143,10 +159,10 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
           />
           <button
             onClick={handleSendMessage}
-            disabled={!inputText.trim()}
+            disabled={!inputText.trim() || isProcessing}
             className="px-6 py-3 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors btn-primary"
           >
-            Send
+            {isProcessing ? 'Processing...' : 'Send'}
           </button>
         </div>
       </div>
