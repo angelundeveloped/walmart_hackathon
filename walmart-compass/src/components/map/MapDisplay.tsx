@@ -240,7 +240,9 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
             className="relative w-full h-full"
             style={{ 
               aspectRatio: `${map.width}/${map.height}`,
-              minHeight: '400px'
+              minHeight: '400px',
+              maxWidth: '100%',
+              maxHeight: '600px'
             }}
           >
             {/* Store Sections */}

@@ -30,14 +30,14 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto p-2 sm:p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-          {/* Map Section - Takes up 2 columns on large screens */}
-          <div className="lg:col-span-2 order-1">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
+          {/* Map Section - Takes up 3 columns on large screens */}
+          <div className="lg:col-span-3 order-1">
             <MapDisplay className="h-full" />
           </div>
           
           {/* Right Sidebar - Chat and Shopping List */}
-          <div className="space-y-4 lg:space-y-6 order-2">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-6 order-2">
             <ChatWindow className="h-[400px] lg:h-[500px]" />
             <ShoppingList />
           </div>
