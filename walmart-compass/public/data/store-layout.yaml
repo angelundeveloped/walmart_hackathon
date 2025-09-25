@@ -7,18 +7,18 @@ map:
   height: 100  # Grid units (representing meters)
   scale: 1.0  # Scale factor for rendering
 
-# Store Sections and Aisles - Realistic Walmart Layout
+# Store Sections and Aisles - Evenly Distributed Walmart Layout
 sections:
-  # Front of Store - Fresh Departments
+  # Front of Store - Fresh Departments (Evenly distributed across width)
   - name: "Produce"
     id: "produce"
     color: "#90EE90"
     aisles:
       - id: "produce-1"
-        coordinates: [[5, 5], [15, 5], [15, 12], [5, 12]]
+        coordinates: [[5, 5], [25, 5], [25, 12], [5, 12]]
         type: "rectangular"
       - id: "produce-2"
-        coordinates: [[5, 15], [15, 15], [15, 22], [5, 22]]
+        coordinates: [[5, 15], [25, 15], [25, 22], [5, 22]]
         type: "rectangular"
 
   - name: "Bakery"
@@ -26,7 +26,7 @@ sections:
     color: "#D2B48C"
     aisles:
       - id: "bakery-1"
-        coordinates: [[18, 5], [28, 5], [28, 12], [18, 12]]
+        coordinates: [[30, 5], [50, 5], [50, 12], [30, 12]]
         type: "rectangular"
 
   - name: "Dairy"
@@ -34,7 +34,7 @@ sections:
     color: "#87CEEB"
     aisles:
       - id: "dairy-1"
-        coordinates: [[18, 15], [28, 15], [28, 22], [18, 22]]
+        coordinates: [[30, 15], [50, 15], [50, 22], [30, 22]]
         type: "rectangular"
 
   - name: "Meat & Seafood"
@@ -42,10 +42,10 @@ sections:
     color: "#FFB6C1"
     aisles:
       - id: "meat-1"
-        coordinates: [[31, 5], [41, 5], [41, 12], [31, 12]]
+        coordinates: [[55, 5], [75, 5], [75, 12], [55, 12]]
         type: "rectangular"
       - id: "meat-2"
-        coordinates: [[31, 15], [41, 15], [41, 22], [31, 22]]
+        coordinates: [[55, 15], [75, 15], [75, 22], [55, 22]]
         type: "rectangular"
 
   - name: "Frozen Foods"
@@ -53,28 +53,28 @@ sections:
     color: "#ADD8E6"
     aisles:
       - id: "frozen-1"
-        coordinates: [[44, 5], [54, 5], [54, 12], [44, 12]]
+        coordinates: [[80, 5], [100, 5], [100, 12], [80, 12]]
         type: "rectangular"
       - id: "frozen-2"
-        coordinates: [[44, 15], [54, 15], [54, 22], [44, 22]]
+        coordinates: [[80, 15], [100, 15], [100, 22], [80, 22]]
         type: "rectangular"
 
-  # Center Store - Grocery Aisles
+  # Center Store - Grocery Aisles (Evenly distributed)
   - name: "Pantry Aisles"
     id: "pantry"
     color: "#F0E68C"
     aisles:
       - id: "pantry-1"
-        coordinates: [[5, 30], [15, 30], [15, 35], [5, 35]]
+        coordinates: [[5, 30], [25, 30], [25, 35], [5, 35]]
         type: "rectangular"
       - id: "pantry-2"
-        coordinates: [[5, 38], [15, 38], [15, 43], [5, 43]]
+        coordinates: [[5, 38], [25, 38], [25, 43], [5, 43]]
         type: "rectangular"
       - id: "pantry-3"
-        coordinates: [[5, 46], [15, 46], [15, 51], [5, 51]]
+        coordinates: [[5, 46], [25, 46], [25, 51], [5, 51]]
         type: "rectangular"
       - id: "pantry-4"
-        coordinates: [[5, 54], [15, 54], [15, 59], [5, 59]]
+        coordinates: [[5, 54], [25, 54], [25, 59], [5, 59]]
         type: "rectangular"
 
   - name: "Cereal & Breakfast"
@@ -82,10 +82,10 @@ sections:
     color: "#FFE4B5"
     aisles:
       - id: "cereal-1"
-        coordinates: [[18, 30], [28, 30], [28, 35], [18, 35]]
+        coordinates: [[30, 30], [50, 30], [50, 35], [30, 35]]
         type: "rectangular"
       - id: "cereal-2"
-        coordinates: [[18, 38], [28, 38], [28, 43], [18, 43]]
+        coordinates: [[30, 38], [50, 38], [50, 43], [30, 43]]
         type: "rectangular"
 
   - name: "Snacks & Candy"
@@ -93,10 +93,10 @@ sections:
     color: "#FFD700"
     aisles:
       - id: "snacks-1"
-        coordinates: [[31, 30], [41, 30], [41, 35], [31, 35]]
+        coordinates: [[55, 30], [75, 30], [75, 35], [55, 35]]
         type: "rectangular"
       - id: "snacks-2"
-        coordinates: [[31, 38], [41, 38], [41, 43], [31, 43]]
+        coordinates: [[55, 38], [75, 38], [75, 43], [55, 43]]
         type: "rectangular"
 
   - name: "Beverages"
@@ -104,22 +104,22 @@ sections:
     color: "#98FB98"
     aisles:
       - id: "beverages-1"
-        coordinates: [[44, 30], [54, 30], [54, 35], [44, 35]]
+        coordinates: [[80, 30], [100, 30], [100, 35], [80, 35]]
         type: "rectangular"
       - id: "beverages-2"
-        coordinates: [[44, 38], [54, 38], [54, 43], [44, 43]]
+        coordinates: [[80, 38], [100, 38], [100, 43], [80, 43]]
         type: "rectangular"
 
-  # Back of Store - General Merchandise
+  # Back of Store - General Merchandise (Evenly distributed)
   - name: "Health & Beauty"
     id: "health"
     color: "#FFA07A"
     aisles:
       - id: "health-1"
-        coordinates: [[5, 70], [15, 70], [15, 75], [5, 75]]
+        coordinates: [[5, 70], [25, 70], [25, 75], [5, 75]]
         type: "rectangular"
       - id: "health-2"
-        coordinates: [[5, 78], [15, 78], [15, 83], [5, 83]]
+        coordinates: [[5, 78], [25, 78], [25, 83], [5, 83]]
         type: "rectangular"
 
   - name: "Household"
@@ -127,10 +127,10 @@ sections:
     color: "#DDA0DD"
     aisles:
       - id: "household-1"
-        coordinates: [[18, 70], [28, 70], [28, 75], [18, 75]]
+        coordinates: [[30, 70], [50, 70], [50, 75], [30, 75]]
         type: "rectangular"
       - id: "household-2"
-        coordinates: [[18, 78], [28, 78], [28, 83], [18, 83]]
+        coordinates: [[30, 78], [50, 78], [50, 83], [30, 83]]
         type: "rectangular"
 
   - name: "Electronics"
@@ -138,7 +138,7 @@ sections:
     color: "#B0C4DE"
     aisles:
       - id: "electronics-1"
-        coordinates: [[31, 70], [41, 70], [41, 75], [31, 75]]
+        coordinates: [[55, 70], [75, 70], [75, 75], [55, 75]]
         type: "rectangular"
 
   - name: "Toys & Games"
@@ -146,7 +146,7 @@ sections:
     color: "#FFB6C1"
     aisles:
       - id: "toys-1"
-        coordinates: [[44, 70], [54, 70], [54, 75], [44, 75]]
+        coordinates: [[80, 70], [100, 70], [100, 75], [80, 75]]
         type: "rectangular"
 
 # Product Items with Locations
@@ -156,7 +156,7 @@ items:
     name: "Organic Whole Milk"
     category: "Dairy"
     section: "dairy"
-    coordinates: [23, 18]
+    coordinates: [40, 18]
     price: 4.99
     in_stock: true
 
@@ -164,7 +164,7 @@ items:
     name: "2% Reduced Fat Milk"
     category: "Dairy"
     section: "dairy"
-    coordinates: [24, 18]
+    coordinates: [42, 18]
     price: 3.99
     in_stock: true
 
@@ -172,7 +172,7 @@ items:
     name: "Free Range Eggs (12 count)"
     category: "Dairy"
     section: "dairy"
-    coordinates: [25, 18]
+    coordinates: [44, 18]
     price: 5.99
     in_stock: true
 
@@ -180,7 +180,7 @@ items:
     name: "Sharp Cheddar Cheese"
     category: "Dairy"
     section: "dairy"
-    coordinates: [23, 19]
+    coordinates: [40, 19]
     price: 6.99
     in_stock: true
 
@@ -188,7 +188,7 @@ items:
     name: "Greek Yogurt (Plain)"
     category: "Dairy"
     section: "dairy"
-    coordinates: [24, 19]
+    coordinates: [42, 19]
     price: 4.49
     in_stock: true
 
@@ -329,7 +329,7 @@ items:
     name: "Chocolate Chip Cookies"
     category: "Snacks"
     section: "snacks"
-    coordinates: [36, 32]
+    coordinates: [65, 32]
     price: 3.99
     in_stock: true
 
@@ -354,7 +354,7 @@ items:
     name: "Spring Water (24 pack)"
     category: "Beverages"
     section: "beverages"
-    coordinates: [49, 32]
+    coordinates: [85, 32]
     price: 4.99
     in_stock: true
 
@@ -362,7 +362,7 @@ items:
     name: "Coca-Cola (12 pack)"
     category: "Beverages"
     section: "beverages"
-    coordinates: [50, 32]
+    coordinates: [90, 32]
     price: 6.99
     in_stock: true
 
