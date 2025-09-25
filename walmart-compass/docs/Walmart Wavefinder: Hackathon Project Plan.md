@@ -83,16 +83,16 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
 ### **✅ Phase 6: Finalization & Documentation (Friday, Sept 26)**
 
 * **Objective:** Polish the demo, complete the documentation, and submit.  
-* [] **Testing & Bug Fixes:**  
-  * [] Run through the entire user flow multiple times. Type in weird queries. Try to break it.  
-  * [] Fix any visual glitches or logical errors.  
-* [] **Finalize Documentation:**  
-  * [] Complete all sections in the Solution-Documentation.md file.  
-  * [] Create the diagrams using a tool like Excalidraw or draw.io and embed them, or use ASCII art for the submission.  
-* [] **Prepare Demo:**  
-  * [] Write a short, clear script for your demo presentation/video.  
-  * [] Record a screen capture of the app working flawlessly.  
-* [] **Submission:**  
-  * [] Write the submission email.  
-  * [] Attach the documentation and a link to the live app (if deployed) or the video.  
-  * [] **SUBMIT BEFORE 3 PM!**
+* [x] **Testing & Bug Fixes:**  
+  * [x] Run through the entire user flow multiple times. Type in weird queries. Try to break it.  
+  * [x] Fix any visual glitches or logical errors.  
+* [x] **Finalize Documentation:**  
+  * [x] Complete all sections in the Solution-Documentation.md file.  
+  * [x] Create the diagrams using a tool like Excalidraw or draw.io and embed them, or use ASCII art for the submission.  
+* [x] **Prepare Demo:**  
+  * [x] Write a short, clear script for your demo presentation/video.  
+  * [x] Record a screen capture of the app working flawlessly.  
+* [x] **Submission:**  
+  * [x] Write the submission email.  
+  * [x] Attach the documentation and a link to the live app (if deployed) or the video.  
+  * [x] **SUBMIT BEFORE 3 PM!**
