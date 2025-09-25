@@ -1,3 +1,5 @@
+import { vectorDB, SearchResult } from './vector-db';
+
 export async function askGemini(message: string): Promise<string> {
   const res = await fetch('/api/chat', {
     method: 'POST',
@@ -167,6 +169,61 @@ export function extractNaturalResponse(fullResponse: string): string | null {
     return naturalText || null;
   } catch {
     return null;
+  }
+}
+
+// Enhanced semantic search using vector database
+export async function semanticSearch(query: string, limit: number = 5): Promise<SearchResult[]> {
+  try {
+    await vectorDB.initialize();
+    return await vectorDB.search(query, limit);
+  } catch (error) {
+    console.error('Semantic search failed:', error);
+    return [];
+  }
+}
+
+// Get similar items for a given item
+export async function getSimilarItems(itemId: string, limit: number = 3): Promise<SearchResult[]> {
+  try {
+    await vectorDB.initialize();
+    return await vectorDB.getSimilarItems(itemId, limit);
+  } catch (error) {
+    console.error('Get similar items failed:', error);
+    return [];
+  }
+}
+
+// Enhanced item mapping with semantic search fallback
+export async function mapItemsToCoordinatesWithSemantic(names: string[]): Promise<{ id: string; name: string; x: number; y: number }[]> {
+  try {
+    // First try the original mapping
+    const originalResults = await mapItemsToCoordinates(names);
+    
+    // For unmatched items, try semantic search
+    const unmatchedNames = names.filter(name => 
+      !originalResults.some(result => result.name.toLowerCase().includes(name.toLowerCase()))
+    );
+    
+    const semanticResults: { id: string; name: string; x: number; y: number }[] = [];
+    
+    for (const name of unmatchedNames) {
+      const searchResults = await semanticSearch(name, 1);
+      if (searchResults.length > 0) {
+        const result = searchResults[0];
+        semanticResults.push({
+          id: result.item.id,
+          name: result.item.name,
+          x: result.item.coordinates.x,
+          y: result.item.coordinates.y
+        });
+      }
+    }
+    
+    return [...originalResults, ...semanticResults];
+  } catch (error) {
+    console.error('Enhanced item mapping failed:', error);
+    return await mapItemsToCoordinates(names); // Fallback to original
   }
 }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { askGemini, parseItemsFromYaml, mapItemsToCoordinates, extractNaturalResponse } from '@/lib/llm';
+import { askGemini, parseItemsFromYaml, mapItemsToCoordinatesWithSemantic, extractNaturalResponse } from '@/lib/llm';
 import { useSelection } from '@/lib/selection';
 
 interface Message {
@@ -68,10 +68,10 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
       };
       setMessages(prev => [...prev, aiMessage]);
 
-      // Try to parse items from YAML and add as targets (name-only; mapping to coordinates is next step)
+      // Try to parse items from YAML and add as targets with enhanced semantic search
       const items = extracted;
       if (items.length > 0) {
-        const coords = await mapItemsToCoordinates(items);
+        const coords = await mapItemsToCoordinatesWithSemantic(items);
         if (coords.length > 0) {
           const targets = coords.map(c => ({ id: c.id, x: c.x, y: c.y, label: c.name }));
           setTargetsAbsolute(targets);

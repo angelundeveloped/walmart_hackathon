@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSelection } from '@/lib/selection';
+import { getSimilarItems } from '@/lib/llm';
 
 interface ShoppingItem {
   id: string;
@@ -211,13 +212,34 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                   </div>
                 )}
 
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="ml-3 text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-50"
-                  aria-label={`Remove ${item.name}`}
-                >
-                  Remove
-                </button>
+                <div className="flex gap-1 ml-3">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const similar = await getSimilarItems(item.id, 3);
+                        if (similar.length > 0) {
+                          const similarNames = similar.map(s => s.item.name).join(', ');
+                          alert(`Similar items to ${item.name}:\n${similarNames}`);
+                        } else {
+                          alert(`No similar items found for ${item.name}`);
+                        }
+                      } catch (error) {
+                        console.error('Error getting similar items:', error);
+                      }
+                    }}
+                    className="text-xs px-2 py-1 rounded border border-blue-300 hover:bg-blue-50 text-blue-600"
+                    title="Find similar items"
+                  >
+                    Similar
+                  </button>
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="text-xs px-2 py-1 rounded border border-gray-300 hover:bg-gray-50"
+                    aria-label={`Remove ${item.name}`}
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             ))}
           </div>
