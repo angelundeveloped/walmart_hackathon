@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { askGemini, parseItemsFromYaml, mapItemsToCoordinates } from '@/lib/llm';
+import { askGemini, parseItemsFromYaml, mapItemsToCoordinates, extractNaturalResponse } from '@/lib/llm';
 import { useSelection } from '@/lib/selection';
 
 interface Message {
@@ -51,22 +51,15 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
 
     try {
       const reply = await askGemini(newMessage.text);
-      // Show a friendly confirmation instead of raw YAML
-      const extracted = parseItemsFromYaml(reply);
       
-      // Create intelligent response based on context
-      let pretty = '';
-      if (extracted.length > 0) {
-        if (extracted.length >= 5) {
-          pretty = `Perfect! I've suggested ${extracted.length} items for your request: ${extracted.slice(0, 3).join(', ')}${extracted.length > 3 ? `, and ${extracted.length - 3} more` : ''}. Adding them to your list and creating an optimized route!`;
-        } else if (extracted.length >= 3) {
-          pretty = `Great! I found ${extracted.length} relevant items: ${extracted.join(', ')}. Adding them to your list and route.`;
-        } else {
-          pretty = `Got it! I found: ${extracted.join(', ')}. Adding them to your list and route.`;
-        }
-      } else {
-        pretty = `I understand your request. Let me try to find relevant items for you.`;
-      }
+      // Extract the natural response text (before YAML) and items
+      const extracted = parseItemsFromYaml(reply);
+      const naturalResponse = extractNaturalResponse(reply);
+      
+      // Use the natural response from AI, or fallback to our own message
+      const pretty = naturalResponse || (extracted.length > 0 
+        ? `Great! I found ${extracted.length} items: ${extracted.slice(0, 3).join(', ')}${extracted.length > 3 ? `, and ${extracted.length - 3} more` : ''}. Adding them to your list!`
+        : `I understand your request. Let me try to find relevant items for you.`);
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: pretty,

@@ -144,4 +144,30 @@ function getFallbackCoordinates(category: string): { x: number; y: number } {
   return fallbackCoords[category] || fallbackCoords.default;
 }
 
+// Extract natural response text before YAML section
+export function extractNaturalResponse(fullResponse: string): string | null {
+  try {
+    const lines = fullResponse.split('\n');
+    const naturalLines: string[] = [];
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      // Stop when we hit the YAML section
+      if (trimmed === 'items:' || trimmed.startsWith('items:')) {
+        break;
+      }
+      // Skip empty lines at the beginning
+      if (naturalLines.length === 0 && trimmed === '') {
+        continue;
+      }
+      naturalLines.push(trimmed);
+    }
+    
+    const naturalText = naturalLines.join(' ').trim();
+    return naturalText || null;
+  } catch {
+    return null;
+  }
+}
+
 
