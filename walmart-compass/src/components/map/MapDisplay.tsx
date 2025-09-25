@@ -404,45 +404,57 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
               />
             ))}
 
-            {/* Selected target pins with labels */}
-            {targets.map(t => (
-              <div
-                key={t.id}
-                className="absolute"
-                style={{
-                  left: `${(t.x / map.width) * 100}%`,
-                  top: `${(t.y / map.height) * 100}%`,
-                  transform: 'translate(-50%, -50%)'
-                }}
-              >
-                {/* Item label above the pin */}
+            {/* Selected target pins with smart labels */}
+            {targets.map(t => {
+              const cartPos = estimatedCart ?? trueCart;
+              const distance = Math.sqrt((t.x - cartPos.x) ** 2 + (t.y - cartPos.y) ** 2);
+              const showLabel = distance < 15; // Show labels within 15 units
+              
+              return (
                 <div
-                  className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-blue-200 rounded-lg px-3 py-1.5 text-xs font-semibold text-contrast shadow-lg whitespace-nowrap z-10"
-                  style={{ 
-                    minWidth: 'max-content',
-                    backgroundColor: '#f8fafc',
-                    borderColor: WALMART_BLUE,
-                    color: '#1e40af'
+                  key={t.id}
+                  className="absolute"
+                  style={{
+                    left: `${(t.x / map.width) * 100}%`,
+                    top: `${(t.y / map.height) * 100}%`,
+                    transform: 'translate(-50%, -50%)'
                   }}
                 >
-                  {t.label ?? 'Target'}
-                  {/* Arrow pointing down to pin */}
-                  <div 
-                    className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent"
-                    style={{ borderTopColor: WALMART_BLUE }}
-                  ></div>
+                  {/* Item label above the pin - only show when near */}
+                  {showLabel && (
+                    <div
+                      className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-white border-2 border-blue-200 rounded-lg px-3 py-1.5 text-xs font-semibold text-contrast shadow-lg whitespace-nowrap z-10"
+                      style={{ 
+                        minWidth: 'max-content',
+                        backgroundColor: '#f8fafc',
+                        borderColor: WALMART_BLUE,
+                        color: '#1e40af'
+                      }}
+                    >
+                      {t.label ?? 'Target'}
+                      {/* Arrow pointing down to pin */}
+                      <div 
+                        className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent"
+                        style={{ borderTopColor: WALMART_BLUE }}
+                      ></div>
+                    </div>
+                  )}
+                  {/* Pin - clickable */}
+                  <div
+                    className="w-3.5 h-3.5 rounded-full border-2 cursor-pointer hover:scale-110 transition-transform"
+                    style={{
+                      backgroundColor: WALMART_YELLOW,
+                      borderColor: '#b38600'
+                    }}
+                    title={t.label ?? 'Target'}
+                    onClick={() => {
+                      // Show item details popup
+                      alert(`Item: ${t.label}\nLocation: (${t.x.toFixed(1)}, ${t.y.toFixed(1)})\nDistance: ${distance.toFixed(1)} units`);
+                    }}
+                  />
                 </div>
-                {/* Pin */}
-                <div
-                  className="w-3.5 h-3.5 rounded-full border-2"
-                  style={{
-                    backgroundColor: WALMART_YELLOW,
-                    borderColor: '#b38600'
-                  }}
-                  title={t.label ?? 'Target'}
-                />
-              </div>
-            ))}
+              );
+            })}
 
             {/* True cart (ghost) */}
             <div
