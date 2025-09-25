@@ -53,9 +53,20 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
       const reply = await askGemini(newMessage.text);
       // Show a friendly confirmation instead of raw YAML
       const extracted = parseItemsFromYaml(reply);
-      const pretty = extracted.length > 0
-        ? `Got it! I found: ${extracted.join(', ')}. Adding them to your list and route.`
-        : `I understand. Let me try to add that to your route.`;
+      
+      // Create intelligent response based on context
+      let pretty = '';
+      if (extracted.length > 0) {
+        if (extracted.length >= 5) {
+          pretty = `Perfect! I've suggested ${extracted.length} items for your request: ${extracted.slice(0, 3).join(', ')}${extracted.length > 3 ? `, and ${extracted.length - 3} more` : ''}. Adding them to your list and creating an optimized route!`;
+        } else if (extracted.length >= 3) {
+          pretty = `Great! I found ${extracted.length} relevant items: ${extracted.join(', ')}. Adding them to your list and route.`;
+        } else {
+          pretty = `Got it! I found: ${extracted.join(', ')}. Adding them to your list and route.`;
+        }
+      } else {
+        pretty = `I understand your request. Let me try to find relevant items for you.`;
+      }
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: pretty,
