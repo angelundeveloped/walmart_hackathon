@@ -55,7 +55,7 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
     setPendingItems,
     cartPosition,
     setCartPosition,
-  }), [targets, cartPosition]);
+  }), [targets, cartPosition, pendingItems]);
 
   return (
     <SelectionContext.Provider value={value}>{children}</SelectionContext.Provider>

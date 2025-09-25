@@ -75,7 +75,8 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
           setPendingItems(targets);
         }
       }
-    } catch (e) {
+    } catch (error) {
+      console.error('Chat error:', error);
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: 'Sorry, I had trouble understanding that. Please try again.',

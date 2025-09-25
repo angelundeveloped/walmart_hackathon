@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { StoreLayout, StoreItem } from '@/types/store';
+import { StoreLayout } from '@/types/store';
 import { loadStoreLayout } from '@/lib/store-data';
 import { simulateAndEstimate, AnchorDistance } from '@/simulation/uwb';
 import { findPath, toGridPoint, snapToWalkable } from '@/lib/pathfinding';
@@ -29,7 +29,6 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
   // Estimated from UWB
   const [estimatedCart, setEstimatedCart] = useState<CartPose | null>(null);
   const [measuredAnchors, setMeasuredAnchors] = useState<AnchorDistance[] | null>(null);
-  const [selectedItems, setSelectedItems] = useState<StoreItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pathPoints, setPathPoints] = useState<{ x: number; y: number }[] | null>(null);
   const targetsKey = React.useMemo(() =>
@@ -121,7 +120,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
       { noiseStdDev: 0.6, maxAnchors: 6 }
     );
 
-    setMeasuredAnchors(measured);
+    // setMeasuredAnchors(measured); // For future debugging/display
     if (estimated) {
       setEstimatedCart({ x: estimated.x, y: estimated.y, heading: trueCart.heading });
       // Share cart position with other components
@@ -183,7 +182,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
       prevPathRef.current = nextPath;
       setPathPoints(nextPath);
     }
-  }, [storeLayout, targetsKey, estimatedCart?.x, estimatedCart?.y, trueCart.x, trueCart.y]);
+  }, [storeLayout, targetsKey, estimatedCart?.x, estimatedCart?.y, trueCart.x, trueCart.y, pathPoints, targets]);
 
   if (isLoading) {
     return (
@@ -217,7 +216,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     );
   }
 
-  const { map, sections, items, uwb_anchors, entrances, checkouts, services } = storeLayout;
+  const { map, sections, uwb_anchors, entrances, checkouts, services } = storeLayout;
 
   return (
     <div className={`bg-gray-100 border-2 border-gray-300 rounded-lg ${className}`}>
