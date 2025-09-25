@@ -20,6 +20,23 @@ interface ShoppingListProps {
 
 export default function ShoppingList({ className = '' }: ShoppingListProps) {
   const { setTargetsAbsolute, pendingItems, cartPosition } = useSelection();
+
+  // Get category icon
+  const getCategoryIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'dairy': return '🥛';
+      case 'bakery': return '🍞';
+      case 'produce': return '🥬';
+      case 'meat & seafood': return '🥩';
+      case 'frozen foods': return '🧊';
+      case 'pantry': return '🥫';
+      case 'beverages': return '🥤';
+      case 'health & beauty': return '💄';
+      case 'household': return '🧽';
+      case 'from chat': return '💬';
+      default: return '🛒';
+    }
+  };
   const [items, setItems] = useState<ShoppingItem[]>([
     {
       id: '1',
@@ -173,7 +190,10 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-contrast-light">{item.category}</p>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm">{getCategoryIcon(item.category)}</span>
+                    <p className="text-sm text-contrast-light">{item.category}</p>
+                  </div>
                 </div>
                 
                 {item.location && (

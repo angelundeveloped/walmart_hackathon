@@ -59,7 +59,28 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
   * [x] Add loading states for the AI response and route calculation.  
   * [x] Make the UI responsive and usable on mobile screen sizes.
 
-### **✅ Phase 4: Finalization & Documentation (Friday, Sept 26)**
+### **✅ Phase 5: Enhanced UI Features & Navigation**
+
+* **Objective:** Improve user experience with better visual indicators, labels, and navigation aids.  
+* [x] **Enhanced Map Legend:**  
+  * [x] Add icons to legend items (🛒 Cart, 📡 UWB, 🚪 Entrance, 🎯 Target, etc.)
+  * [x] Improve legend layout with better styling and descriptions
+  * [x] Add route path and true position indicators
+* [x] **Store Section Labels:**  
+  * [x] Add section labels with icons (🥛 Dairy, 🍞 Bakery, 🥬 Produce, etc.)
+  * [x] Position labels at center of each section for easy identification
+  * [x] Use semi-transparent backgrounds for better readability
+* [x] **Shopping List Enhancements:**  
+  * [x] Add category icons to each item (🥛 Dairy, 🍞 Bakery, etc.)
+  * [x] Visual category indicators for better item organization
+* [x] **Chat Interface Improvements:**  
+  * [x] Add user (👤) and AI (🤖) icons to messages
+  * [x] Enhanced loading state with AI icon
+* [x] **Header Enhancements:**  
+  * [x] Add BETA badge to indicate development status
+  * [x] Add system status indicators (📡 UWB Active, 🤖 AI Ready)
+
+### **✅ Phase 6: Finalization & Documentation (Friday, Sept 26)**
 
 * **Objective:** Polish the demo, complete the documentation, and submit.  
 * [] **Testing & Bug Fixes:**  

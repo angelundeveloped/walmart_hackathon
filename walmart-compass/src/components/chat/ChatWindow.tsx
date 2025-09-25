@@ -122,7 +122,12 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
                     : 'bg-white border border-gray-200 text-contrast'
                 } shadow-sm`}
                 >
-                <p className="text-sm text-contrast">{message.text}</p>
+                <div className="flex items-start gap-2">
+                  <span className="text-sm mt-0.5">
+                    {message.isUser ? '👤' : '🤖'}
+                  </span>
+                  <p className="text-sm text-contrast flex-1">{message.text}</p>
+                </div>
                 <p className={`text-xs mt-1 ${
                   message.isUser ? 'text-blue-100' : 'text-contrast-light'
                 }`}>
@@ -138,6 +143,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
             <div className="flex justify-start">
               <div className="max-w-[80%] p-3 rounded-lg bg-white border border-gray-200 text-contrast shadow-sm">
                 <div className="flex items-center gap-2">
+                  <span className="text-sm">🤖</span>
                   <div className="animate-spin text-sm">⏳</div>
                   <p className="text-sm">Processing your request...</p>
                 </div>

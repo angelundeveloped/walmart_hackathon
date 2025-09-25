@@ -265,6 +265,47 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
               </div>
             ))}
 
+            {/* Section Labels */}
+            {sections.map((section) => {
+              // Calculate center position for the first aisle of each section
+              const firstAisle = section.aisles[0];
+              if (!firstAisle) return null;
+              
+              const centerX = (firstAisle.coordinates[0][0] + firstAisle.coordinates[1][0]) / 2;
+              const centerY = (firstAisle.coordinates[0][1] + firstAisle.coordinates[2][1]) / 2;
+              
+              // Get section icon
+              const getSectionIcon = (sectionName: string) => {
+                switch (sectionName.toLowerCase()) {
+                  case 'dairy': return '🥛';
+                  case 'bakery': return '🍞';
+                  case 'produce': return '🥬';
+                  case 'meat & seafood': return '🥩';
+                  case 'frozen foods': return '🧊';
+                  case 'pantry': return '🥫';
+                  case 'beverages': return '🥤';
+                  case 'health & beauty': return '💄';
+                  case 'household': return '🧽';
+                  default: return '🏪';
+                }
+              };
+
+              return (
+                <div
+                  key={`label-${section.id}`}
+                  className="absolute flex items-center gap-1 bg-white bg-opacity-90 rounded-md px-2 py-1 shadow-sm border border-gray-200"
+                  style={{
+                    left: `${(centerX / map.width) * 100}%`,
+                    top: `${(centerY / map.height) * 100}%`,
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                >
+                  <span className="text-sm">{getSectionIcon(section.name)}</span>
+                  <span className="text-xs font-medium text-contrast">{section.name}</span>
+                </div>
+              );
+            })}
+
             {/* Path rendering */}
             {pathPoints && pathPoints.length > 1 && (
               // Use store units by setting viewBox to map dimensions
@@ -421,23 +462,56 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
           </div>
         </div>
 
-        {/* Map Legend */}
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 pin-blue rounded-full"></div>
-            <span className="text-contrast">Cart</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 pin-red rounded-full"></div>
-            <span className="text-contrast">UWB Anchor</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 pin-green rounded-full"></div>
-            <span className="text-contrast">Entrance</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 pin-yellow rounded-full"></div>
-            <span className="text-contrast">Target</span>
+        {/* Enhanced Map Legend */}
+        <div className="mt-4 bg-gray-50 rounded-lg p-3">
+          <h4 className="text-sm font-semibold text-contrast mb-2">Map Legend</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 pin-blue rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">🛒</span>
+              </div>
+              <span className="text-contrast">Shopping Cart</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 pin-red rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">📡</span>
+              </div>
+              <span className="text-contrast">UWB Anchor</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 pin-green rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">🚪</span>
+              </div>
+              <span className="text-contrast">Entrance</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 pin-yellow rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">🎯</span>
+              </div>
+              <span className="text-contrast">Target Item</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">💳</span>
+              </div>
+              <span className="text-contrast">Checkout</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">ℹ️</span>
+              </div>
+              <span className="text-contrast">Services</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-1 bg-walmart rounded-full"></div>
+              <span className="text-contrast">Route Path</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-300 rounded-full flex items-center justify-center">
+                <span className="text-blue-800 text-xs">👻</span>
+              </div>
+              <span className="text-contrast">True Position</span>
+            </div>
           </div>
         </div>
 

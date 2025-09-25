@@ -6,8 +6,25 @@ export default function Home() {
       {/* Header */}
       <header className="bg-walmart text-white p-3 sm:p-4 shadow-lg">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-xl sm:text-2xl font-bold">🛒 Walmart Wavefinder</h1>
-          <p className="opacity-90 mt-1 text-sm sm:text-base">AI-Powered In-Store Navigation</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                🛒 Walmart Wavefinder
+                <span className="text-sm bg-white bg-opacity-20 px-2 py-1 rounded-full">BETA</span>
+              </h1>
+              <p className="opacity-90 mt-1 text-sm sm:text-base">AI-Powered In-Store Navigation</p>
+            </div>
+            <div className="hidden sm:flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-1">
+                <span>📡</span>
+                <span>UWB Active</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>🤖</span>
+                <span>AI Ready</span>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
