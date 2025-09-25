@@ -23,7 +23,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
   const WALMART_YELLOW = '#FFC220';
   const GRAY_DARK = '#1f2937';
 
-  const { targets } = useSelection();
+  const { targets, setCartPosition } = useSelection();
   const [storeLayout, setStoreLayout] = useState<StoreLayout | null>(null);
   // Keyboard-controlled ground truth
   const [trueCart, setTrueCart] = useState<CartPose>({ x: 50, y: 0, heading: 0 });
@@ -125,10 +125,13 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     setMeasuredAnchors(measured);
     if (estimated) {
       setEstimatedCart({ x: estimated.x, y: estimated.y, heading: trueCart.heading });
+      // Share cart position with other components
+      setCartPosition({ x: estimated.x, y: estimated.y });
     } else {
       setEstimatedCart(null);
+      setCartPosition({ x: trueCart.x, y: trueCart.y });
     }
-  }, [storeLayout, trueCart.x, trueCart.y, trueCart.heading]);
+  }, [storeLayout, trueCart.x, trueCart.y, trueCart.heading, setCartPosition]);
 
   // Compute a multi-stop path from estimated cart position to selected targets (nearest-first greedy)
   useEffect(() => {

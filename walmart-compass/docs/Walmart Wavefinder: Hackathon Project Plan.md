@@ -45,13 +45,15 @@ Deadline: Friday, September 26, 2025, 3:00 PM (Hard Stop: 8:00 PM)
   * [x] Set up a client-side function to call the Gemini API.  
   * [x] Develop a system prompt that instructs the model to extract product names from user queries and return them in a structured yaml format (e.g., {"items": ["milk", "bread", "eggs"]}).  
   * [x] Connect the ChatWindow.tsx component to this function. Display the conversation flow.  
-* [] **Connecting Logic:**  
-  * [] When the LLM returns the list of items, look up their coordinates from store-layout.json.  
-  * [] Call your calculateRoute function with the cart's current position and the list of item coordinates.  
-  * [] Update the map to display the new, optimized route.  
-  * [] Populate the ShoppingList.tsx component with the requested items.  
-* [] **Shopping List Functionality:**  
-  * [] Implement the check-off feature. When an item is checked, it could be greyed out on the list and its pin removed from the map.  
+* [x] **Connecting Logic:**  
+  * [x] When the LLM returns the list of items, look up their coordinates from store-layout.yaml.  
+  * [x] Call your calculateRoute function with the cart's current position and the list of item coordinates.  
+  * [x] Update the map to display the new, optimized route.  
+  * [x] Populate the ShoppingList.tsx component with the requested items.  
+* [x] **Shopping List Functionality:**  
+  * [x] Implement the check-off feature. When an item is checked, it could be greyed out on the list and its pin removed from the map.  
+  * [x] Items should be deletable.
+  * [x] Items should be organized by proximity.
 * [] **UI/UX Refinement:**  
   * [] Ensure the blue arrow smoothly follows the path and rotates to show direction.  
   * [] Add loading states for the AI response and route calculation.  

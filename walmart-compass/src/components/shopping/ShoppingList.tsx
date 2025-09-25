@@ -19,7 +19,7 @@ interface ShoppingListProps {
 }
 
 export default function ShoppingList({ className = '' }: ShoppingListProps) {
-  const { setTargetsAbsolute, pendingItems } = useSelection();
+  const { setTargetsAbsolute, pendingItems, cartPosition } = useSelection();
   const [items, setItems] = useState<ShoppingItem[]>([
     {
       id: '1',
@@ -57,6 +57,26 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
   const removeItem = (id: string) => {
     setItems(prev => prev.filter(i => i.id !== id));
   };
+
+  // Sort items by proximity to cart position (closest first)
+  const sortedItems = React.useMemo(() => {
+    if (!cartPosition) return items;
+    
+    return [...items].sort((a, b) => {
+      if (!a.location || !b.location) return 0;
+      
+      const distA = Math.sqrt(
+        Math.pow(a.location.x - cartPosition.x, 2) + 
+        Math.pow(a.location.y - cartPosition.y, 2)
+      );
+      const distB = Math.sqrt(
+        Math.pow(b.location.x - cartPosition.x, 2) + 
+        Math.pow(b.location.y - cartPosition.y, 2)
+      );
+      
+      return distA - distB;
+    });
+  }, [items, cartPosition]);
 
   // Sync selections to shared context in one atomic update + merge parsed pendingItems
   useEffect(() => {
@@ -116,7 +136,7 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            {items.map((item) => (
+            {sortedItems.map((item) => (
               <div
                 key={item.id}
                 className={`flex items-center p-3 rounded-lg border transition-all duration-200 ${
@@ -141,17 +161,33 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                 </button>
                 
                 <div className="flex-1">
-                  <p className={`font-medium ${
-                    item.isCompleted ? 'text-gray-500 line-through' : 'text-contrast'
-                  }`}>
-                    {item.name}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className={`font-medium ${
+                      item.isCompleted ? 'text-gray-500 line-through' : 'text-contrast'
+                    }`}>
+                      {item.name}
+                    </p>
+                    {cartPosition && !item.isCompleted && sortedItems.indexOf(item) === 0 && (
+                      <span className="text-xs bg-walmart text-white px-2 py-1 rounded-full">
+                        Closest
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-contrast-light">{item.category}</p>
                 </div>
                 
                 {item.location && (
                   <div className="text-xs text-contrast-light ml-2">
-                    ({item.location.x}, {item.location.y})
+                    {cartPosition ? (
+                      <span>
+                        {Math.round(Math.sqrt(
+                          Math.pow(item.location.x - cartPosition.x, 2) + 
+                          Math.pow(item.location.y - cartPosition.y, 2)
+                        ))}m
+                      </span>
+                    ) : (
+                      <span>({item.location.x}, {item.location.y})</span>
+                    )}
                   </div>
                 )}
 

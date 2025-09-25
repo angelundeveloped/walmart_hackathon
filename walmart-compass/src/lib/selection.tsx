@@ -17,6 +17,8 @@ interface SelectionContextValue {
   setTargetsAbsolute: (list: TargetPoint[]) => void;
   pendingItems: TargetPoint[];
   setPendingItems: (list: TargetPoint[]) => void;
+  cartPosition: { x: number; y: number } | null;
+  setCartPosition: (pos: { x: number; y: number } | null) => void;
 }
 
 const SelectionContext = createContext<SelectionContextValue | undefined>(undefined);
@@ -24,6 +26,7 @@ const SelectionContext = createContext<SelectionContextValue | undefined>(undefi
 export function SelectionProvider({ children }: { children: ReactNode }) {
   const [targets, setTargets] = useState<TargetPoint[]>([]);
   const [pendingItems, setPendingItems] = useState<TargetPoint[]>([]);
+  const [cartPosition, setCartPosition] = useState<{ x: number; y: number } | null>(null);
 
   const equalTargets = (a: TargetPoint[], b: TargetPoint[]) => {
     if (a === b) return true;
@@ -50,7 +53,9 @@ export function SelectionProvider({ children }: { children: ReactNode }) {
     },
     pendingItems,
     setPendingItems,
-  }), [targets]);
+    cartPosition,
+    setCartPosition,
+  }), [targets, cartPosition]);
 
   return (
     <SelectionContext.Provider value={value}>{children}</SelectionContext.Provider>
