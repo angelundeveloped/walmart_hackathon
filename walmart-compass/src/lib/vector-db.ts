@@ -93,12 +93,68 @@ class VectorDatabase {
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
   }
 
-  // Initialize the vector database with store items
+  // Initialize the vector database with store items from database
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
     try {
-      // Load store layout data
+      // Try to load items from database first
+      if (typeof window === 'undefined') {
+        // Server-side: use Supabase client
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        
+        if (supabaseUrl && supabaseKey) {
+          const supabase = createClient(supabaseUrl, supabaseKey);
+          const { data: dbItems, error } = await supabase
+            .from('store_items')
+            .select('id, name, category, description, coordinates, price, embedding')
+            .eq('in_stock', true);
+          
+          if (!error && dbItems && dbItems.length > 0) {
+            // Use items from database with embeddings
+            this.items = dbItems.map(item => {
+              let embedding = [];
+              if (item.embedding) {
+                if (Array.isArray(item.embedding)) {
+                  embedding = item.embedding;
+                } else if (typeof item.embedding === 'string') {
+                  try {
+                    embedding = JSON.parse(item.embedding);
+                  } catch (e) {
+                    console.error(`Failed to parse embedding for ${item.name}:`, e);
+                    embedding = [];
+                  }
+                }
+              }
+              
+              return {
+                id: item.id,
+                name: item.name,
+                description: item.description || `${item.name} ${item.category}`,
+                category: item.category,
+                embedding: embedding,
+                coordinates: item.coordinates as { x: number; y: number },
+                price: item.price || 0
+              };
+            });
+            
+            console.log(`Vector DB initialized with ${this.items.length} items from database`);
+            if (this.items.length > 0) {
+              console.log(`First item: ${this.items[0].name} - embedding length: ${this.items[0].embedding.length}`);
+            }
+            this.isInitialized = true;
+            return;
+          } else {
+            console.error('Failed to load items from database:', error);
+          }
+        } else {
+          console.error('Missing Supabase environment variables');
+        }
+      }
+      
+      // Fallback: Load from YAML file (client-side or if database fails)
       const response = await fetch('/data/store-layout.yaml');
       const text = await response.text();
       
@@ -164,7 +220,8 @@ class VectorDatabase {
       
       this.isInitialized = true;
       
-    } catch {
+    } catch (error) {
+      console.error('Vector database initialization failed:', error);
       // Vector database initialization failed
     }
   }
@@ -175,22 +232,64 @@ class VectorDatabase {
       await this.initialize();
     }
     
+    console.log(`Vector search for query: "${query}" with ${this.items.length} items`);
+    
     const queryVector = await this.textToVector(query);
     const results: SearchResult[] = [];
     
     for (const item of this.items) {
-      const similarity = this.cosineSimilarity(queryVector, item.embedding);
-      if (similarity > 0.1) { // Minimum similarity threshold
-        results.push({
-          item,
-          similarity,
-          distance: 1 - similarity // Convert similarity to distance
-        });
+      let itemEmbedding = item.embedding;
+      
+      // If the item has a real embedding (384 dimensions), use it
+      // Otherwise, create a fallback embedding
+      if (!itemEmbedding || itemEmbedding.length === 0) {
+        itemEmbedding = this.createFallbackEmbedding(`${item.name} ${item.description} ${item.category}`);
       }
+      
+      // Only compare if both embeddings have the same dimensions
+      if (queryVector.length === itemEmbedding.length) {
+        const similarity = this.cosineSimilarity(queryVector, itemEmbedding);
+        if (similarity > 0.01) { // Lower similarity threshold for testing
+          results.push({
+            item,
+            similarity,
+            distance: 1 - similarity // Convert similarity to distance
+          });
+        }
+      } else {
+        // If dimensions don't match, use fallback embedding for the item too
+        const fallbackItemEmbedding = this.createFallbackEmbedding(`${item.name} ${item.description} ${item.category}`);
+        const similarity = this.cosineSimilarity(queryVector, fallbackItemEmbedding);
+        if (similarity > 0.01) {
+          results.push({
+            item,
+            similarity,
+            distance: 1 - similarity
+          });
+        }
+      }
+    }
+    
+    // Debug: show top similarities
+    if (results.length === 0 && this.items.length > 0) {
+      const allSimilarities = this.items.map(item => {
+        let itemEmbedding = item.embedding;
+        if (!itemEmbedding || itemEmbedding.length === 0 || queryVector.length !== itemEmbedding.length) {
+          itemEmbedding = this.createFallbackEmbedding(`${item.name} ${item.description} ${item.category}`);
+        }
+        return {
+          name: item.name,
+          similarity: this.cosineSimilarity(queryVector, itemEmbedding)
+        };
+      }).sort((a, b) => b.similarity - a.similarity);
+      
+      console.log('Top 5 similarities (no matches found):', allSimilarities.slice(0, 5));
     }
     
     // Sort by similarity (highest first)
     results.sort((a, b) => b.similarity - a.similarity);
+    
+    console.log(`Found ${results.length} similar items for query: "${query}"`);
     
     return results.slice(0, limit);
   }

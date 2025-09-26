@@ -44,11 +44,11 @@ export default function MobileMenu({ className = '' }: MobileMenuProps) {
             <div className="flex flex-col h-full">
               {/* Menu Header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+                <h2 className="text-lg font-semibold text-gray-800">{dictionary?.menu.title || 'Menu'}</h2>
                 <button
                   onClick={toggleMenu}
                   className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-                  aria-label="Close menu"
+                  aria-label={dictionary?.menu.closeMenu || 'Close menu'}
                 >
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -60,19 +60,19 @@ export default function MobileMenu({ className = '' }: MobileMenuProps) {
               <div className="flex-1 overflow-y-auto p-4 space-y-6">
                 {/* Language Selection */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Language</h3>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">{dictionary?.menu.language || 'Language'}</h3>
                   <LanguageSwitcher />
                 </div>
 
                 {/* User Account */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Account</h3>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">{dictionary?.menu.account || 'Account'}</h3>
                   <AuthButton />
                 </div>
 
                 {/* Status Indicators */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Status</h3>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">{dictionary?.menu.status || 'Status'}</h3>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <span>📡</span>

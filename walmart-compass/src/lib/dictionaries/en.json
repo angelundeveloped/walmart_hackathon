@@ -8,7 +8,17 @@
     "close": "Close",
     "back": "Back",
     "next": "Next",
-    "done": "Done"
+    "done": "Done",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "processing": "Processing...",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "select": "Select",
+    "all": "All",
+    "none": "None"
   },
   "header": {
     "title": "Walmart Wavefinder",
@@ -33,9 +43,18 @@
     "services": "Services",
     "checkout": "Checkout",
     "direction": "Direction",
-    "controls": "Tap legend items to toggle • Use arrow keys to move cart"
+    "controls": "Tap legend items to toggle • Use arrow keys to move cart",
+    "position": "Position",
+    "distance": "Distance",
+    "closest": "Closest",
+    "fromChat": "From Chat",
+    "itemDetails": "Item Details",
+    "location": "Location",
+    "units": "units"
   },
   "chat": {
+    "title": "Shopping Assistant",
+    "welcome": "Hi! I'm your Walmart shopping assistant. What items are you looking for today?",
     "placeholder": "Ask me what you need to find...",
     "send": "Send",
     "thinking": "AI is thinking...",
@@ -46,7 +65,15 @@
     "empty": "Your shopping list is empty. Ask me what you need to find!",
     "similar": "Similar",
     "remove": "Remove",
-    "completed": "Completed"
+    "completed": "Completed",
+    "completedCount": "completed",
+    "addItem": "Add Item",
+    "findSimilar": "Find Similar Items",
+    "noSimilarItems": "No similar items found",
+    "similarItems": "Similar items to",
+    "itemAdded": "Item added to your list",
+    "itemRemoved": "Item removed from your list",
+    "itemCompleted": "Item marked as completed"
   },
   "auth": {
     "signIn": "Sign In",
@@ -67,5 +94,41 @@
   },
   "footer": {
     "description": "Walmart Wavefinder - Hackathon Project | AI-Powered Navigation System"
+  },
+  "store": {
+    "sections": {
+      "produce": "Produce",
+      "bakery": "Bakery", 
+      "dairy": "Dairy",
+      "meat": "Meat & Seafood",
+      "frozen": "Frozen Foods",
+      "pantry": "Pantry Aisles",
+      "beverages": "Beverages",
+      "health": "Health & Beauty",
+      "household": "Household"
+    },
+    "services": {
+      "mainEntrance": "Main Entrance",
+      "gardenCenter": "Garden Center Entrance",
+      "checkout1": "Checkout Lane 1",
+      "checkout2": "Checkout Lane 2", 
+      "checkout3": "Checkout Lane 3",
+      "selfCheckout": "Self Checkout",
+      "pharmacy": "Pharmacy",
+      "customerService": "Customer Service",
+      "moneyCenter": "Money Center"
+    }
+  },
+  "menu": {
+    "title": "Menu",
+    "language": "Language",
+    "account": "Account",
+    "status": "Status",
+    "closeMenu": "Close menu"
+  },
+  "navigation": {
+    "map": "Map",
+    "chat": "Chat", 
+    "list": "List"
   }
 }

@@ -52,6 +52,20 @@ export interface ChatSession {
   updated_at: string
 }
 
+export interface ActiveShoppingList {
+  id: string
+  user_id: string
+  items: Array<{
+    id: string
+    name: string
+    category: string
+    isCompleted: boolean
+    location?: { x: number; y: number }
+  }>
+  created_at: string
+  updated_at: string
+}
+
 export interface ShoppingHistory {
   id: string
   user_id: string

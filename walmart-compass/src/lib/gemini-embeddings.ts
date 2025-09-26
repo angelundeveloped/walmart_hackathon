@@ -9,7 +9,9 @@ export interface EmbeddingResponse {
 
 export async function createEmbedding(text: string): Promise<number[]> {
   try {
-    const response = await fetch('/api/embeddings', {
+    // Use absolute URL for server-side requests
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+    const response = await fetch(`${baseUrl}/api/embeddings`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

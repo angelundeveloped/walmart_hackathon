@@ -154,14 +154,26 @@ export function extractNaturalResponse(fullResponse: string): string | null {
     
     for (const line of lines) {
       const trimmed = line.trim();
-      // Stop when we hit the YAML section
-      if (trimmed === 'items:' || trimmed.startsWith('items:')) {
+      
+      // Stop when we hit YAML markers or YAML section
+      if (trimmed === '```yaml' || 
+          trimmed === '```' || 
+          trimmed === 'items:' || 
+          trimmed.startsWith('items:') ||
+          trimmed.startsWith('```yaml')) {
         break;
       }
+      
       // Skip empty lines at the beginning
       if (naturalLines.length === 0 && trimmed === '') {
         continue;
       }
+      
+      // Skip lines that are just YAML markers
+      if (trimmed === '```' || trimmed === '```yaml') {
+        continue;
+      }
+      
       naturalLines.push(trimmed);
     }
     

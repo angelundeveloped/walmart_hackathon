@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function AuthButton() {
-  const { user, loading, signInWithGoogle, signOut } = useAuth()
+  const { user, loading, error, signInWithGoogle, signOut, clearError } = useAuth()
   const { dictionary } = useLanguage()
 
   if (loading) {
@@ -13,6 +13,22 @@ export default function AuthButton() {
       <div className="flex items-center gap-2">
         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
         <span className="text-sm">Loading...</span>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <div className="text-red-500 text-sm text-center max-w-xs">
+          {error}
+        </div>
+        <button
+          onClick={clearError}
+          className="text-xs text-gray-400 hover:text-gray-300 underline"
+        >
+          Dismiss
+        </button>
       </div>
     )
   }

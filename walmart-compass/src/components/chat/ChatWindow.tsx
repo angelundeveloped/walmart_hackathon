@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { askGemini, parseItemsFromYaml, mapItemsToCoordinatesWithSemantic, extractNaturalResponse } from '@/lib/llm';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useSelection } from '@/lib/selection';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { detectLanguage, shouldSwitchLanguage } from '@/lib/language-detection';
+import { useUserContext } from '@/hooks/useUserContext';
 
 interface Message {
   id: string;
@@ -23,39 +25,117 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
   const [inputText, setInputText] = useState('');
   const [isClient, setIsClient] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const { setTargetsAbsolute, setPendingItems } = useSelection();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const { preferences } = usePreferences();
-  const { dictionary } = useLanguage();
+  const { dictionary, locale, setLocale } = useLanguage();
+  const { userContext } = useUserContext();
 
-  useEffect(() => {
-    setIsClient(true);
-    // Initialize with welcome message only on client side
+  // Load chat history from database
+  const loadChatHistory = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/chat-history');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.sessions && data.sessions.length > 0) {
+          // Load the most recent session
+          const latestSession = data.sessions[0];
+          setCurrentSessionId(latestSession.id);
+          
+          // Convert database messages to component format
+          const loadedMessages = latestSession.messages.map((msg: { id: string; text: string; isUser: boolean; timestamp: string }) => ({
+            id: msg.id,
+            text: msg.text,
+            isUser: msg.isUser,
+            timestamp: new Date(msg.timestamp)
+          }));
+          
+          setMessages(loadedMessages);
+        } else {
+          // No history, initialize with welcome message
+          initializeWelcomeMessage();
+        }
+      } else {
+        console.error('Failed to load chat history');
+        initializeWelcomeMessage();
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      initializeWelcomeMessage();
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  // Initialize welcome message
+  const initializeWelcomeMessage = useCallback(() => {
+    const welcomeMessage = dictionary?.chat?.welcome || 'Hi! I\'m your Walmart shopping assistant. What items are you looking for today?';
     setMessages([
       {
         id: '1',
-        text: 'Hi! I\'m your Walmart shopping assistant. What items are you looking for today?',
+        text: welcomeMessage,
         isUser: false,
         timestamp: new Date()
       }
     ]);
-  }, []);
+  }, [dictionary]);
+
+  // Save message to database
+  const saveMessage = useCallback(async (message: Message) => {
+    if (!user) return;
+
+    try {
+      const response = await fetch('/api/chat-history', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message.text,
+          isUser: message.isUser,
+          sessionId: currentSessionId
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (!currentSessionId) {
+          setCurrentSessionId(data.sessionId);
+        }
+      } else {
+        console.error('Failed to save message');
+      }
+    } catch (error) {
+      console.error('Error saving message:', error);
+    }
+  }, [user, currentSessionId]);
+
+  useEffect(() => {
+    setIsClient(true);
+    loadChatHistory();
+  }, [loadChatHistory]);
 
   // RAG-enhanced chat function
   const askGeminiWithRAG = async (message: string, context?: string) => {
-    const userContext = {
+    // Use persistent user context if available, otherwise fall back to local preferences
+    const contextToUse = userContext || {
       preferences: {
         dietaryRestrictions: preferences.dietaryRestrictions || [],
         brandPreferences: preferences.brandPreferences || [],
         organicPreference: preferences.organicPreference || false
       },
-      shoppingHistory: (profile as { shoppingHistory?: Array<{ items: string[]; date: string; context?: string }> })?.shoppingHistory || [],
-      currentSession: {
-        items: [],
-        context
-      }
+      shoppingHistory: (profile as { shoppingHistory?: Array<{ items: string[]; date: string; context?: string }> })?.shoppingHistory || []
     };
 
+    // Detect language from user input
+    const detectedLanguage = detectLanguage(message);
 
     const response = await fetch('/api/chat-simple-rag', {
       method: 'POST',
@@ -64,8 +144,10 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
       },
       body: JSON.stringify({
         message,
-        userContext,
-        context
+        userContext: contextToUse,
+        context,
+        language: locale,
+        detectedLanguage
       }),
     });
 
@@ -81,6 +163,14 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
   const handleSendMessage = async () => {
     if (!inputText.trim() || isProcessing) return;
 
+    // Detect language and potentially switch
+    const detectedLanguage = detectLanguage(inputText);
+    const shouldSwitch = shouldSwitchLanguage(inputText, locale);
+    
+    if (shouldSwitch && detectedLanguage !== 'unknown') {
+      setLocale(detectedLanguage);
+    }
+
     const newMessage: Message = {
       id: Date.now().toString(),
       text: inputText,
@@ -91,6 +181,9 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
     setMessages(prev => [...prev, newMessage]);
     setInputText('');
     setIsProcessing(true);
+    
+    // Save user message to database
+    saveMessage(newMessage);
 
     try {
       let reply;
@@ -115,6 +208,9 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Save AI message to database
+      saveMessage(aiMessage);
 
       // Try to parse items from YAML and add as targets with enhanced semantic search
       const items = extracted;
@@ -135,6 +231,9 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Save AI error message to database
+      saveMessage(aiMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -155,10 +254,13 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
       
       <div className="flex-1 p-4 overflow-y-auto max-h-[400px]">
         <div className="space-y-4">
-          {!isClient ? (
+          {!isClient || loading ? (
             <div className="flex justify-start">
               <div className="max-w-[80%] p-3 rounded-lg bg-gray-100 text-gray-800">
-                <p className="text-sm">Loading chat...</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-walmart border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-sm">Loading chat...</p>
+                </div>
               </div>
             </div>
           ) : (
@@ -220,7 +322,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
             disabled={!inputText.trim() || isProcessing}
             className="px-4 sm:px-6 py-3 bg-walmart-yellow text-walmart rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base touch-manipulation min-w-[80px] sm:min-w-auto font-semibold hover:bg-yellow-400"
           >
-            {isProcessing ? (dictionary?.common.loading || 'Processing...') : (dictionary?.chat.send || 'Send')}
+            {isProcessing ? (dictionary?.common.processing || 'Processing...') : (dictionary?.chat.send || 'Send')}
           </button>
         </div>
       </div>
