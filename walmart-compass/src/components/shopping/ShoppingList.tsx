@@ -22,7 +22,7 @@ interface ShoppingListProps {
 }
 
 export default function ShoppingList({ className = '' }: ShoppingListProps) {
-  const { setTargetsAbsolute, pendingItems, cartPosition } = useSelection();
+  const { setTargetsAbsolute, pendingItems, cartPosition, removeTarget } = useSelection();
   const { dictionary } = useLanguage();
 
   // Get category icon
@@ -64,6 +64,9 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
       location: { x: 10, y: 6 }
     }
   ]);
+  
+  // Track removed items to prevent them from being re-added
+  const [removedItems, setRemovedItems] = useState<Set<string>>(new Set());
 
   const toggleItem = (id: string) => {
     setItems(prev => 
@@ -76,7 +79,12 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
   };
 
   const removeItem = (id: string) => {
+    // Remove from local items state
     setItems(prev => prev.filter(i => i.id !== id));
+    // Also remove from selection context targets
+    removeTarget(id);
+    // Track this item as removed to prevent re-adding
+    setRemovedItems(prev => new Set([...prev, id]));
   };
 
   // Sort items: incomplete first (by proximity), then completed at bottom
@@ -114,6 +122,7 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
         const existingNames = new Set(prev.map(p => p.name.toLowerCase()));
         const additions = pendingItems
           .filter(p => !existingNames.has((p.label ?? p.id).toLowerCase()))
+          .filter(p => !removedItems.has(p.id)) // Don't re-add removed items
           .map((p, idx) => ({
             id: `chat-${p.id}-${idx}`,
             name: p.label ?? p.id,
@@ -125,12 +134,15 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
         return [...prev, ...additions];
       });
     }
+  }, [pendingItems, removedItems]);
 
+  // Separate effect for updating targets to avoid infinite loops
+  useEffect(() => {
     const targets = items
       .filter(i => i.location && !i.isCompleted)
       .map(i => ({ id: i.id, x: i.location!.x, y: i.location!.y, label: i.name }));
     setTargetsAbsolute(targets);
-  }, [items, setTargetsAbsolute, pendingItems]);
+  }, [items]); // Remove setTargetsAbsolute from dependencies
 
   const completedCount = items.filter(item => item.isCompleted).length;
   const totalCount = items.length;
