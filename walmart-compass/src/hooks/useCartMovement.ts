@@ -1,11 +1,8 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useSelection } from '@/lib/selection';
 
 export function useCartMovement() {
-  const { cartPosition } = useSelection();
-
   const moveCart = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
     // Map direction to keyboard key
     const keyMap = {
@@ -29,5 +26,5 @@ export function useCartMovement() {
     window.dispatchEvent(event);
   }, []);
 
-  return { moveCart, cartPosition };
+  return { moveCart };
 }

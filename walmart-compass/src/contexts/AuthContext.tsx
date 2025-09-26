@@ -22,6 +22,29 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Error message constants
+const ERROR_MESSAGES = {
+  CREATE_PROFILE: 'Failed to create user profile',
+  FETCH_PROFILE: 'Failed to fetch user profile',
+  UNEXPECTED_ERROR: 'An unexpected error occurred',
+  LOAD_SESSION: 'Failed to load session',
+  SIGN_IN_GOOGLE: 'Failed to sign in with Google',
+  SIGN_IN_UNEXPECTED: 'An unexpected error occurred during sign in',
+  SIGN_OUT: 'Failed to sign out',
+  SIGN_OUT_UNEXPECTED: 'An unexpected error occurred during sign out',
+  UPDATE_PROFILE: 'Failed to update profile',
+  UPDATE_PROFILE_UNEXPECTED: 'An unexpected error occurred while updating profile'
+} as const
+
+// Database constants
+const DB_TABLES = {
+  USER_PROFILES: 'user_profiles'
+} as const
+
+const ERROR_CODES = {
+  PROFILE_NOT_FOUND: 'PGRST116'
+} as const
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -31,12 +54,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error: null
   })
 
+  // Helper functions for common state updates
+  const setLoading = useCallback((loading: boolean) => {
+    setAuthState(prev => ({ ...prev, loading }))
+  }, [])
+
+  const setError = useCallback((error: string | null) => {
+    setAuthState(prev => ({ ...prev, error }))
+  }, [])
+
+  const setUserAndSession = useCallback((user: User | null, session: Session | null) => {
+    setAuthState(prev => ({
+      ...prev,
+      user,
+      session,
+      loading: false
+    }))
+  }, [])
+
+  const handleError = useCallback((error: unknown, errorMessage: string) => {
+    console.error(errorMessage, error)
+    setError(errorMessage)
+    setLoading(false)
+  }, [setError])
+
+  const createUserProfile = useCallback(async (userId: string, userEmail?: string, userName?: string) => {
+    const supabase = createClient()
+    const { data: newProfile, error: createError } = await supabase
+      .from(DB_TABLES.USER_PROFILES)
+      .insert({
+        id: userId,
+        email: userEmail || '',
+        name: userName || userEmail || 'User'
+      })
+      .select()
+      .single()
+    
+    if (createError) {
+      handleError(createError, ERROR_MESSAGES.CREATE_PROFILE)
+      return null
+    }
+    
+    setAuthState(prev => ({ 
+      ...prev, 
+      profile: newProfile
+    }))
+    return newProfile
+  }, [setError, handleError])
+
   const fetchUserProfile = useCallback(async (userId: string, userEmail?: string, userName?: string) => {
     try {
-      console.log('Fetching profile for userId:', userId)
       const supabase = createClient()
       const { data, error } = await supabase
-        .from('user_profiles')
+        .from(DB_TABLES.USER_PROFILES)
         .select('*')
         .eq('id', userId)
         .single()
@@ -44,70 +114,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         console.log('Profile fetch error:', error.code, error.message)
         // If profile doesn't exist, create it
-        if (error.code === 'PGRST116') {
-          console.log('Creating new profile for user:', userId)
-          const { data: newProfile, error: createError } = await supabase
-            .from('user_profiles')
-            .insert({
-              id: userId,
-              email: userEmail || '',
-              name: userName || userEmail || 'User'
-            })
-            .select()
-            .single()
-          
-          if (createError) {
-            console.error('Error creating user profile:', createError)
-            setAuthState(prev => ({ 
-              ...prev, 
-              error: 'Failed to create user profile' 
-            }))
-            return
-          }
-          
-          console.log('Profile created successfully:', newProfile)
-          setAuthState(prev => ({ 
-            ...prev, 
-            profile: newProfile
-          }))
+        if (error.code === ERROR_CODES.PROFILE_NOT_FOUND) {
+          await createUserProfile(userId, userEmail, userName)
         } else {
-          console.error('Error fetching user profile:', error)
-          setAuthState(prev => ({ 
-            ...prev, 
-            error: 'Failed to fetch user profile' 
-          }))
+          handleError(error, ERROR_MESSAGES.FETCH_PROFILE)
         }
       } else {
-        console.log('Profile fetched successfully:', data)
         setAuthState(prev => ({ 
           ...prev, 
           profile: data
         }))
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error)
-      setAuthState(prev => ({ 
-        ...prev, 
-        error: 'An unexpected error occurred' 
-      }))
+      handleError(error, ERROR_MESSAGES.UNEXPECTED_ERROR)
     }
-  }, [])
+  }, [setError, createUserProfile, handleError])
 
   useEffect(() => {
     const supabase = createClient()
     
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
-      console.log('Initial session loaded:', session?.user?.email || 'No user')
-      setAuthState(prev => ({
-        ...prev,
-        session,
-        user: session?.user ?? null,
-        loading: false
-      }))
+      setUserAndSession(session?.user ?? null, session)
       
       if (session?.user) {
-        console.log('Fetching profile for user:', session.user.id)
         fetchUserProfile(
           session.user.id, 
           session.user.email,
@@ -115,26 +145,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         )
       }
     }).catch((error) => {
-      console.error('Error getting initial session:', error)
-      setAuthState(prev => ({
-        ...prev,
-        loading: false,
-        error: 'Failed to load session'
-      }))
+      handleError(error, ERROR_MESSAGES.LOAD_SESSION)
     })
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
-      console.log('Auth state change:', event, session?.user?.email)
       
-      setAuthState(prev => ({
-        ...prev,
-        session,
-        user: session?.user ?? null,
-        loading: false
-      }))
+      setUserAndSession(session?.user ?? null, session)
       
       if (session?.user) {
         await fetchUserProfile(
@@ -154,11 +173,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe()
     }
-  }, [fetchUserProfile])
+  }, [fetchUserProfile, setUserAndSession, setLoading, setError, handleError])
 
   const signInWithGoogle = async () => {
     try {
-      setAuthState(prev => ({ ...prev, loading: true, error: null }))
+      setLoading(true)
+      setError(null)
       
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
@@ -169,51 +189,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       
       if (error) {
-        setAuthState(prev => ({ 
-          ...prev, 
-          loading: false, 
-          error: 'Failed to sign in with Google' 
-        }))
+        setLoading(false)
+        setError(ERROR_MESSAGES.SIGN_IN_GOOGLE)
         throw error
       }
     } catch (error) {
-      console.error('Error signing in with Google:', error)
-      setAuthState(prev => ({ 
-        ...prev, 
-        loading: false, 
-        error: 'An unexpected error occurred during sign in' 
-      }))
+      handleError(error, ERROR_MESSAGES.SIGN_IN_UNEXPECTED)
     }
   }
 
   const signOut = async () => {
     try {
-      setAuthState(prev => ({ ...prev, loading: true, error: null }))
+      setLoading(true)
+      setError(null)
       
       const supabase = createClient()
       const { error } = await supabase.auth.signOut()
       
       if (error) {
-        setAuthState(prev => ({ 
-          ...prev, 
-          loading: false, 
-          error: 'Failed to sign out' 
-        }))
+        setLoading(false)
+        setError(ERROR_MESSAGES.SIGN_OUT)
         throw error
       }
       
       // Reset loading state after successful sign out
-      setAuthState(prev => ({ 
-        ...prev, 
-        loading: false 
-      }))
+      setLoading(false)
     } catch (error) {
-      console.error('Error signing out:', error)
-      setAuthState(prev => ({ 
-        ...prev, 
-        loading: false, 
-        error: 'An unexpected error occurred during sign out' 
-      }))
+      handleError(error, ERROR_MESSAGES.SIGN_OUT_UNEXPECTED)
     }
   }
 
@@ -221,21 +223,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!authState.user) return
 
     try {
-      setAuthState(prev => ({ ...prev, error: null }))
+      setError(null)
       
       const supabase = createClient()
       const { data, error } = await supabase
-        .from('user_profiles')
+        .from(DB_TABLES.USER_PROFILES)
         .update(updates)
         .eq('id', authState.user.id)
         .select()
         .single()
 
       if (error) {
-        setAuthState(prev => ({ 
-          ...prev, 
-          error: 'Failed to update profile' 
-        }))
+        setError(ERROR_MESSAGES.UPDATE_PROFILE)
         throw error
       }
       
@@ -244,16 +243,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile: data
       }))
     } catch (error) {
-      console.error('Error updating profile:', error)
-      setAuthState(prev => ({ 
-        ...prev, 
-        error: 'An unexpected error occurred while updating profile' 
-      }))
+      handleError(error, ERROR_MESSAGES.UPDATE_PROFILE_UNEXPECTED)
     }
   }
 
   const clearError = () => {
-    setAuthState(prev => ({ ...prev, error: null }))
+    setError(null)
   }
 
   const value = {

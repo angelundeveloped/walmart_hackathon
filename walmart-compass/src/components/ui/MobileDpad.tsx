@@ -1,25 +1,44 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCartMovement } from '@/hooks/useCartMovement';
 
 interface MobileDpadProps {
   className?: string;
 }
 
+// Constants for D-pad dimensions and positioning
+const DPAD_SIZE = 200;
+const DPAD_OFFSET = 220;
+
+// Button styling constants
+const BUTTON_CLASS = `
+  flex items-center justify-center
+  w-12 h-12
+  bg-walmart/50 text-white
+  rounded-lg
+  shadow-md
+  active:bg-walmart-dark
+  active:scale-95
+  hover:bg-walmart-dark
+  transition-all duration-100
+  touch-manipulation
+  select-none
+  text-xl
+  font-bold
+  border border-white/20
+  focus:outline-none
+  cursor-pointer
+  user-select-none
+`;
+
 export default function MobileDpad({ className = '' }: MobileDpadProps) {
   const { moveCart } = useCartMovement();
-  const [position, setPosition] = useState({ x: window.innerWidth - 220, y: window.innerHeight - 220 });
+  const [position, setPosition] = useState({ x: window.innerWidth - DPAD_OFFSET, y: window.innerHeight - DPAD_OFFSET });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const dpadRef = useRef<HTMLDivElement>(null);
 
-  const handleTouchStart = (e: React.TouchEvent, direction: 'up' | 'down' | 'left' | 'right') => {
-    e.preventDefault();
-    moveCart(direction);
-  };
-
-  const handleClick = (e: React.MouseEvent, direction: 'up' | 'down' | 'left' | 'right') => {
+  const handleDirectionPress = (e: React.MouseEvent | React.TouchEvent, direction: 'up' | 'down' | 'left' | 'right') => {
     e.preventDefault();
     moveCart(direction);
   };
@@ -50,8 +69,8 @@ export default function MobileDpad({ className = '' }: MobileDpadProps) {
     const newY = clientY - dragStart.y;
     
     // Keep within viewport bounds
-    const maxX = window.innerWidth - 200; // D-pad width
-    const maxY = window.innerHeight - 200; // D-pad height
+    const maxX = window.innerWidth - DPAD_SIZE; // D-pad width
+    const maxY = window.innerHeight - DPAD_SIZE; // D-pad height
     
     setPosition({
       x: Math.max(0, Math.min(newX, maxX)),
@@ -79,29 +98,8 @@ export default function MobileDpad({ className = '' }: MobileDpadProps) {
     };
   }, [isDragging, handleDragMove, handleDragEnd]);
 
-  const buttonClass = `
-    flex items-center justify-center
-    w-12 h-12
-    bg-walmart/50 text-white
-    rounded-lg
-    shadow-md
-    active:bg-walmart-dark
-    active:scale-95
-    hover:bg-walmart-dark
-    transition-all duration-100
-    touch-manipulation
-    select-none
-    text-xl
-    font-bold
-    border border-white/20
-    focus:outline-none
-    cursor-pointer
-    user-select-none
-  `;
-
   return (
     <div 
-      ref={dpadRef}
       className={`fixed z-50 ${className}`}
       style={{
         left: position.x,
@@ -124,9 +122,9 @@ export default function MobileDpad({ className = '' }: MobileDpadProps) {
       <div className="grid grid-cols-3 gap-1 w-40 h-40">
         {/* Up Arrow */}
         <button
-          onClick={(e) => handleClick(e, 'up')}
-          onTouchStart={(e) => handleTouchStart(e, 'up')}
-          className={`${buttonClass} col-start-2 row-start-1`}
+          onClick={(e) => handleDirectionPress(e, 'up')}
+          onTouchStart={(e) => handleDirectionPress(e, 'up')}
+          className={`${BUTTON_CLASS} col-start-2 row-start-1`}
           aria-label="Move cart up"
         >
           ↑
@@ -134,9 +132,9 @@ export default function MobileDpad({ className = '' }: MobileDpadProps) {
         
         {/* Left Arrow */}
         <button
-          onClick={(e) => handleClick(e, 'left')}
-          onTouchStart={(e) => handleTouchStart(e, 'left')}
-          className={`${buttonClass} col-start-1 row-start-2`}
+          onClick={(e) => handleDirectionPress(e, 'left')}
+          onTouchStart={(e) => handleDirectionPress(e, 'left')}
+          className={`${BUTTON_CLASS} col-start-1 row-start-2`}
           aria-label="Move cart left"
         >
           ←
@@ -147,9 +145,9 @@ export default function MobileDpad({ className = '' }: MobileDpadProps) {
         
         {/* Right Arrow */}
         <button
-          onClick={(e) => handleClick(e, 'right')}
-          onTouchStart={(e) => handleTouchStart(e, 'right')}
-          className={`${buttonClass} col-start-3 row-start-2`}
+          onClick={(e) => handleDirectionPress(e, 'right')}
+          onTouchStart={(e) => handleDirectionPress(e, 'right')}
+          className={`${BUTTON_CLASS} col-start-3 row-start-2`}
           aria-label="Move cart right"
         >
           →
@@ -157,9 +155,9 @@ export default function MobileDpad({ className = '' }: MobileDpadProps) {
         
         {/* Down Arrow */}
         <button
-          onClick={(e) => handleClick(e, 'down')}
-          onTouchStart={(e) => handleTouchStart(e, 'down')}
-          className={`${buttonClass} col-start-2 row-start-3`}
+          onClick={(e) => handleDirectionPress(e, 'down')}
+          onTouchStart={(e) => handleDirectionPress(e, 'down')}
+          className={`${BUTTON_CLASS} col-start-2 row-start-3`}
           aria-label="Move cart down"
         >
           ↓
