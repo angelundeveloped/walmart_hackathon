@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { SelectionProvider } from "@/lib/selection";
@@ -16,8 +16,6 @@ export const metadata: Metadata = {
   title: "Walmart Wavefinder - AI-Powered In-Store Navigation",
   description: "AI-powered navigation system for Walmart stores with real-time positioning and intelligent routing",
   manifest: "/manifest.json",
-  themeColor: "#0071CE",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -27,6 +25,14 @@ export const metadata: Metadata = {
     icon: "/icon-192.png",
     apple: "/icon-192.png",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#0071CE",
 };
 
 
