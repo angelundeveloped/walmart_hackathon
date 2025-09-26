@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { StoreLayout, StoreItem } from '@/types/store';
+import { StoreLayout } from '@/types/store';
 import { loadStoreLayout } from '@/lib/store-data';
-import { simulateAndEstimate, AnchorDistance } from '@/simulation/uwb';
+import { simulateAndEstimate } from '@/simulation/uwb';
 import { findPath, toGridPoint, snapToWalkable } from '@/lib/pathfinding';
 import { useSelection } from '@/lib/selection';
+import { usePreferences } from '@/contexts/PreferencesContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import InteractiveLegend from './InteractiveLegend';
 
 interface MapDisplayProps {
   className?: string;
@@ -21,16 +24,15 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
   // Walmart-inspired palette
   const WALMART_BLUE = '#0071CE';
   const WALMART_YELLOW = '#FFC220';
-  const GRAY_DARK = '#1f2937';
 
-  const { targets } = useSelection();
+  const { targets, setCartPosition } = useSelection();
+  const { preferences } = usePreferences();
+  const { dictionary } = useLanguage();
   const [storeLayout, setStoreLayout] = useState<StoreLayout | null>(null);
   // Keyboard-controlled ground truth
   const [trueCart, setTrueCart] = useState<CartPose>({ x: 50, y: 0, heading: 0 });
   // Estimated from UWB
   const [estimatedCart, setEstimatedCart] = useState<CartPose | null>(null);
-  const [measuredAnchors, setMeasuredAnchors] = useState<AnchorDistance[] | null>(null);
-  const [selectedItems, setSelectedItems] = useState<StoreItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pathPoints, setPathPoints] = useState<{ x: number; y: number }[] | null>(null);
   const targetsKey = React.useMemo(() =>
@@ -116,19 +118,22 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
   useEffect(() => {
     if (!storeLayout) return;
 
-    const { measured, estimated } = simulateAndEstimate(
+    const { estimated } = simulateAndEstimate(
       storeLayout,
       { x: trueCart.x, y: trueCart.y },
       { noiseStdDev: 0.6, maxAnchors: 6 }
     );
 
-    setMeasuredAnchors(measured);
+    // setMeasuredAnchors(measured); // For future debugging/display
     if (estimated) {
       setEstimatedCart({ x: estimated.x, y: estimated.y, heading: trueCart.heading });
+      // Share cart position with other components
+      setCartPosition({ x: estimated.x, y: estimated.y });
     } else {
       setEstimatedCart(null);
+      setCartPosition({ x: trueCart.x, y: trueCart.y });
     }
-  }, [storeLayout, trueCart.x, trueCart.y, trueCart.heading]);
+  }, [storeLayout, trueCart.x, trueCart.y, trueCart.heading, setCartPosition]);
 
   // Compute a multi-stop path from estimated cart position to selected targets (nearest-first greedy)
   useEffect(() => {
@@ -181,17 +186,17 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
       prevPathRef.current = nextPath;
       setPathPoints(nextPath);
     }
-  }, [storeLayout, targetsKey, estimatedCart?.x, estimatedCart?.y, trueCart.x, trueCart.y]);
+  }, [storeLayout, targetsKey, estimatedCart?.x, estimatedCart?.y, trueCart.x, trueCart.y, pathPoints, targets]);
 
-  if (isLoading) {
+  if (isLoading || !dictionary) {
     return (
       <div className={`bg-gray-100 border-2 border-gray-300 rounded-lg ${className}`}>
         <div className="p-4">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Store Map</h3>
+          <h3 className="text-lg font-semibold text-contrast mb-2">{dictionary?.map.title || 'Store Map'}</h3>
           <div className="bg-white border border-gray-200 rounded p-4 min-h-[400px] flex items-center justify-center">
-            <div className="text-center text-gray-500">
+            <div className="text-center text-contrast-muted">
               <div className="animate-spin text-4xl mb-2">⏳</div>
-              <p>Loading store layout...</p>
+              <p>{dictionary?.common.loading || 'Loading store layout...'}</p>
             </div>
           </div>
         </div>
@@ -203,9 +208,9 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     return (
       <div className={`bg-gray-100 border-2 border-gray-300 rounded-lg ${className}`}>
         <div className="p-4">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Store Map</h3>
+          <h3 className="text-lg font-semibold text-contrast mb-2">Store Map</h3>
           <div className="bg-white border border-gray-200 rounded p-4 min-h-[400px] flex items-center justify-center">
-            <div className="text-center text-red-500">
+            <div className="text-center text-red-600">
               <div className="text-4xl mb-2">❌</div>
               <p>Failed to load store layout</p>
             </div>
@@ -215,13 +220,18 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
     );
   }
 
-  const { map, sections, items, uwb_anchors, entrances, checkouts, services } = storeLayout;
+  const { map, sections, uwb_anchors, entrances, checkouts, services } = storeLayout;
+  
+  // Filter sections based on user preferences
+  const visibleSections = sections.filter(section => 
+    preferences.mapFilters.showSections.includes(section.id)
+  );
 
   return (
     <div className={`bg-gray-100 border-2 border-gray-300 rounded-lg ${className}`}>
       <div className="p-4">
         <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-semibold text-walmart">Store Map</h3>
+          <h3 className="text-lg font-semibold text-walmart">{dictionary.map.title}</h3>
           <div className="text-sm space-x-3 text-contrast">
             <span>
               True: ({trueCart.x.toFixed(1)}, {trueCart.y.toFixed(1)}) {trueCart.heading}°
@@ -233,29 +243,33 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
         </div>
         
         {/* Map Container */}
-        <div className="bg-white border border-gray-200 rounded p-4 min-h-[400px] relative overflow-hidden">
+        <div className="bg-white border-2 border-gray-300 rounded-lg p-4 min-h-[400px] relative overflow-hidden map-container shadow-sm">
           <div 
             ref={mapCanvasRef}
-            className="relative w-full h-full"
+            className="relative w-full h-full overflow-hidden map-canvas rounded-md"
             style={{ 
               aspectRatio: `${map.width}/${map.height}`,
-              minHeight: '400px'
+              minHeight: '400px',
+              maxWidth: '100%',
+              maxHeight: '600px',
+              position: 'relative',
+              contain: 'layout style'
             }}
           >
             {/* Store Sections */}
-            {sections.map((section) => (
+            {preferences.mapFilters.showItems && visibleSections.map((section) => (
               <div key={section.id}>
                 {section.aisles.map((aisle) => (
                   <div
                     key={aisle.id}
-                    className="absolute border-2 border-gray-400 rounded-sm"
+                    className="absolute border-2 border-gray-400 rounded-sm z-10"
                     style={{
                       left: `${(aisle.coordinates[0][0] / map.width) * 100}%`,
                       top: `${(aisle.coordinates[0][1] / map.height) * 100}%`,
                       width: `${((aisle.coordinates[1][0] - aisle.coordinates[0][0]) / map.width) * 100}%`,
                       height: `${((aisle.coordinates[2][1] - aisle.coordinates[0][1]) / map.height) * 100}%`,
                       backgroundColor: section.color,
-                      opacity: 0.3
+                      opacity: 0.4
                     }}
                     title={`${section.name} - ${aisle.id}`}
                   />
@@ -263,8 +277,51 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
               </div>
             ))}
 
+            {/* Section Labels */}
+            {preferences.mapFilters.showItems && visibleSections.map((section) => {
+              // Calculate center position for the first aisle of each section
+              const firstAisle = section.aisles[0];
+              if (!firstAisle) return null;
+              
+              const centerX = (firstAisle.coordinates[0][0] + firstAisle.coordinates[1][0]) / 2;
+              const centerY = (firstAisle.coordinates[0][1] + firstAisle.coordinates[2][1]) / 2;
+              
+              // Get section icon
+              const getSectionIcon = (sectionName: string) => {
+                switch (sectionName.toLowerCase()) {
+                  case 'dairy': return '🥛';
+                  case 'bakery': return '🍞';
+                  case 'produce': return '🥬';
+                  case 'meat & seafood': return '🥩';
+                  case 'frozen foods': return '🧊';
+                  case 'pantry': return '🥫';
+                  case 'beverages': return '🥤';
+                  case 'health & beauty': return '💄';
+                  case 'household': return '🧽';
+                  default: return '🏪';
+                }
+              };
+
+              return (
+                <div
+                  key={`label-${section.id}`}
+                  className="absolute flex items-center gap-0.5 xs:gap-1 bg-white rounded-sm xs:rounded-md px-1 xs:px-2 py-0.5 xs:py-1 shadow-sm xs:shadow-md border border-gray-300 xs:border-2 text-black overflow-hidden map-element"
+                  style={{
+                    left: `${Math.max(0, Math.min(100, (centerX / map.width) * 100))}%`,
+                    top: `${Math.max(0, Math.min(100, (centerY / map.height) * 100))}%`,
+                    transform: 'translate(-50%, -50%)',
+                    maxWidth: '120px',
+                    zIndex: 10
+                  }}
+                >
+                  <span className="text-xs xs:text-sm leading-none flex-shrink-0">{getSectionIcon(section.name)}</span>
+                  <span className="text-xs font-bold text-gray-800 hidden xs:inline truncate">{section.name}</span>
+                </div>
+              );
+            })}
+
             {/* Path rendering */}
-            {pathPoints && pathPoints.length > 1 && (
+            {preferences.mapFilters.showRoute && pathPoints && pathPoints.length > 1 && (
               // Use store units by setting viewBox to map dimensions
               <svg
                 className="absolute inset-0 w-full h-full"
@@ -299,7 +356,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
             )}
 
             {/* UWB Anchors */}
-            {uwb_anchors.map((anchor) => (
+            {preferences.mapFilters.showAnchors && uwb_anchors.map((anchor) => (
               <div
                 key={anchor.id}
                 className="absolute w-2.5 h-2.5 rounded-full border"
@@ -315,7 +372,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
             ))}
 
             {/* Entrances */}
-            {entrances.map((entrance) => (
+            {preferences.mapFilters.showServices && entrances.map((entrance) => (
               <div
                 key={entrance.id}
                 className="absolute w-3.5 h-3.5 rounded-full border-2"
@@ -331,7 +388,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
             ))}
 
             {/* Checkouts */}
-            {checkouts.map((checkout) => (
+            {preferences.mapFilters.showServices && checkouts.map((checkout) => (
               <div
                 key={checkout.id}
                 className="absolute w-3.5 h-3.5 rounded-full border-2"
@@ -347,7 +404,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
             ))}
 
             {/* Services */}
-            {services.map((service) => (
+            {preferences.mapFilters.showServices && services.map((service) => (
               <div
                 key={service.id}
                 className="absolute w-3.5 h-3.5 rounded-full border-2"
@@ -362,87 +419,79 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
               />
             ))}
 
-            {/* Selected target pins */}
-            {targets.map(t => (
-              <div
-                key={t.id}
-                className="absolute w-3.5 h-3.5 rounded-full border-2"
-                style={{
-                  backgroundColor: WALMART_YELLOW,
-                  borderColor: '#b38600',
-                  left: `${(t.x / map.width) * 100}%`,
-                  top: `${(t.y / map.height) * 100}%`,
-                  transform: 'translate(-50%, -50%)'
-                }}
-                title={t.label ?? 'Target'}
-              />
-            ))}
+            {/* Selected target pins with smart labels */}
+            {preferences.mapFilters.showItems && targets.map(t => {
+              const cartPos = estimatedCart ?? trueCart;
+              const distance = Math.sqrt((t.x - cartPos.x) ** 2 + (t.y - cartPos.y) ** 2);
+              // Show labels within 20 units for better visibility
+              
+              return (
+                <div
+                  key={t.id}
+                  className="absolute z-20 map-element"
+                  style={{
+                    left: `${Math.max(0, Math.min(100, (t.x / map.width) * 100))}%`,
+                    top: `${Math.max(0, Math.min(100, (t.y / map.height) * 100))}%`,
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                >
+                  {/* Item label above the pin - responsive sizing */}
+                  <div
+                    className="absolute -top-8 xs:-top-10 sm:-top-12 left-1/2 transform -translate-x-1/2 bg-white border border-walmart xs:border-2 rounded-sm xs:rounded-lg px-1 xs:px-2 py-0.5 xs:py-1 text-xs font-bold text-gray-800 shadow-sm xs:shadow-lg whitespace-nowrap z-30 overflow-hidden"
+                    style={{ 
+                      minWidth: 'max-content',
+                      maxWidth: '150px',
+                      backgroundColor: '#ffffff',
+                      borderColor: WALMART_BLUE,
+                      color: '#1f2937'
+                    }}
+                  >
+                    <span className="truncate block">{t.label ?? 'Target'}</span>
+                    {/* Arrow pointing down to pin */}
+                    <div 
+                      className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 xs:border-l-3 border-r-2 xs:border-r-3 border-t-2 xs:border-t-3 border-transparent"
+                      style={{ borderTopColor: WALMART_BLUE }}
+                    ></div>
+                  </div>
+                  {/* Pin - larger and more prominent with inset shadow for "inside" effect */}
+                  <div
+                    className="w-4 h-4 rounded-full border-2 cursor-pointer hover:scale-125 transition-transform"
+                    style={{
+                      backgroundColor: WALMART_YELLOW,
+                      borderColor: '#b38600',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.3)',
+                      zIndex: 25
+                    }}
+                    title={`${t.label ?? 'Target'} - Click for details`}
+                    onClick={() => {
+                      // Show item details popup
+                      alert(`Item: ${t.label}\nLocation: (${t.x.toFixed(1)}, ${t.y.toFixed(1)})\nDistance: ${distance.toFixed(1)} units`);
+                    }}
+                  />
+                </div>
+              );
+            })}
 
-            {/* True cart (ghost) */}
+            {/* Shopping Cart - Clean and prominent */}
             <div
-              className="absolute w-4 h-4 rounded-full border-2"
-              style={{
-                backgroundColor: '#93c5fd',
-                borderColor: '#60a5fa',
-                left: `${(trueCart.x / map.width) * 100}%`,
-                top: `${(trueCart.y / map.height) * 100}%`,
-                transform: `translate(-50%, -50%) rotate(${trueCart.heading}deg)`
-              }}
-              title={`True Cart (${trueCart.x.toFixed(1)}, ${trueCart.y.toFixed(1)})`}
-            />
-
-            {/* Estimated cart (authoritative for rendering) */}
-            <div
-              className="absolute w-4 h-4 rounded-full border-2 flex items-center justify-center shadow-md"
+              className="absolute w-6 h-6 rounded-full border-3 flex items-center justify-center shadow-lg z-30 map-element"
               style={{
                 backgroundColor: WALMART_BLUE,
-                borderColor: '#0b4c8c',
-                left: `${((estimatedCart?.x ?? trueCart.x) / map.width) * 100}%`,
-                top: `${((estimatedCart?.y ?? trueCart.y) / map.height) * 100}%`,
-                transform: `translate(-50%, -50%) rotate(${trueCart.heading}deg)`
+                borderColor: '#ffffff',
+                left: `${Math.max(0, Math.min(100, ((estimatedCart?.x ?? trueCart.x) / map.width) * 100))}%`,
+                top: `${Math.max(0, Math.min(100, ((estimatedCart?.y ?? trueCart.y) / map.height) * 100))}%`,
+                transform: 'translate(-50%, -50%)',
+                boxShadow: '0 4px 12px rgba(0, 113, 206, 0.4)'
               }}
-              title={`Estimated Cart (${(estimatedCart?.x ?? trueCart.x).toFixed(1)}, ${(estimatedCart?.y ?? trueCart.y).toFixed(1)})`}
+              title={`Your Cart (${(estimatedCart?.x ?? trueCart.x).toFixed(1)}, ${(estimatedCart?.y ?? trueCart.y).toFixed(1)})`}
             >
-              <div className="w-2 h-2 bg-white rounded-full"></div>
+              <span className="text-white text-sm">🛒</span>
             </div>
-
-            {/* Direction Arrow for estimated */}
-            <div
-              className="absolute w-0 h-0 border-l-4 border-r-4 border-b-6 border-l-transparent border-r-transparent"
-              style={{
-                borderBottomColor: WALMART_YELLOW,
-                left: `${((estimatedCart?.x ?? trueCart.x) / map.width) * 100}%`,
-                top: `${((estimatedCart?.y ?? trueCart.y) / map.height) * 100}%`,
-                transform: `translate(-50%, -100%) rotate(${trueCart.heading}deg)`
-              }}
-            />
           </div>
         </div>
 
-        {/* Map Legend */}
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 pin-blue rounded-full"></div>
-            <span className="text-contrast">Cart</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 pin-red rounded-full"></div>
-            <span className="text-contrast">UWB Anchor</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 pin-green rounded-full"></div>
-            <span className="text-contrast">Entrance</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-3 pin-yellow rounded-full"></div>
-            <span className="text-contrast">Target</span>
-          </div>
-        </div>
-
-        {/* Controls Info */}
-        <div className="mt-2 text-xs text-contrast-light">
-          Use arrow keys to move the cart around the store
-        </div>
+        {/* Interactive Legend with Preferences */}
+        <InteractiveLegend className="mt-4" />
       </div>
     </div>
   );
