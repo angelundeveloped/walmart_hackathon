@@ -34,17 +34,19 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // User is available for future authentication logic if needed
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
-  }
+  // Allow public access to all routes - authentication is optional
+  // Users can access the app without logging in, but logging in enables:
+  // - Session persistence
+  // - History recordings
+  // - Personalized preferences
+  
+  // Only protect specific routes that require authentication (if any)
+  // For now, all routes are public since auth is optional
+  // The user variable is available for future use if needed
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:
