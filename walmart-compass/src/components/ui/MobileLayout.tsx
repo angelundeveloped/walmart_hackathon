@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import MobileDpad from './MobileDpad';
 
 interface MobileLayoutProps {
   mapContent: React.ReactNode;
@@ -54,8 +55,11 @@ export default function MobileLayout({ mapContent, chatContent, listContent, cla
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden relative">
         {renderContent()}
+        
+        {/* D-pad overlay for map tab */}
+        {activeTab === 'map' && <MobileDpad />}
       </div>
     </div>
   );

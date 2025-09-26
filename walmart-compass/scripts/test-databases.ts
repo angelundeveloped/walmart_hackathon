@@ -38,7 +38,7 @@ const log = {
 };
 
 // Test results tracking
-let testResults = {
+const testResults = {
   passed: 0,
   failed: 0,
   total: 0
@@ -123,7 +123,7 @@ async function testSupabaseConnection() {
 }
 
 // Database schema validation
-async function testDatabaseSchema(supabase: any) {
+async function testDatabaseSchema(supabase: unknown) {
   log.header('Database Schema Validation');
   
   const expectedTables = [
@@ -152,7 +152,7 @@ async function testDatabaseSchema(supabase: any) {
 }
 
 // CRUD operations test
-async function testCRUDOperations(supabase: any) {
+async function testCRUDOperations(supabase: unknown) {
   log.header('CRUD Operations Test');
   
   const testUserId = 'test-user-' + Date.now();
@@ -296,7 +296,7 @@ async function testVectorDatabase() {
 }
 
 // Authentication test
-async function testAuthentication(supabase: any) {
+async function testAuthentication(supabase: unknown) {
   log.header('Authentication Test');
   
   try {
@@ -327,7 +327,7 @@ async function testAuthentication(supabase: any) {
 }
 
 // Performance test
-async function testPerformance(supabase: any) {
+async function testPerformance(supabase: unknown) {
   log.header('Performance Test');
   
   try {

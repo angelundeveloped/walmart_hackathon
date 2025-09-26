@@ -30,7 +30,7 @@ export interface RAGContext {
 
 export class RAGSystem {
   private userContext: UserContext | null = null;
-  private supabase: any = null;
+  private supabase: unknown = null;
 
   // Create fallback embedding when Gemini API is unavailable
   private createFallbackEmbedding(text: string): number[] {
@@ -109,7 +109,7 @@ export class RAGSystem {
       }
 
       // Convert to SearchResult format
-      return results.map((item: any) => ({
+      return results.map((item: unknown) => ({
         item: {
           id: item.id,
           name: item.name,

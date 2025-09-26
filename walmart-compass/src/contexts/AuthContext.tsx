@@ -201,6 +201,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }))
         throw error
       }
+      
+      // Reset loading state after successful sign out
+      setAuthState(prev => ({ 
+        ...prev, 
+        loading: false 
+      }))
     } catch (error) {
       console.error('Error signing out:', error)
       setAuthState(prev => ({ 

@@ -12,6 +12,7 @@ export { default as LanguageSwitcher } from './ui/LanguageSwitcher';
 export { default as MobileMenu } from './ui/MobileMenu';
 export { default as CollapsiblePanel } from './ui/CollapsiblePanel';
 export { default as MobileLayout } from './ui/MobileLayout';
+export { default as MobileDpad } from './ui/MobileDpad';
 
 // PWA components
 export { default as PWAManager } from './pwa/PWAManager';
