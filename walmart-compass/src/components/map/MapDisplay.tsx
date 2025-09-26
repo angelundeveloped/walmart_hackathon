@@ -465,7 +465,7 @@ export default function MapDisplay({ className = '' }: MapDisplayProps) {
                     title={`${t.label ?? 'Target'} - Click for details`}
                     onClick={() => {
                       // Show item details popup
-                      alert(`Item: ${t.label}\nLocation: (${t.x.toFixed(1)}, ${t.y.toFixed(1)})\nDistance: ${distance.toFixed(1)} units`);
+                      alert(`${dictionary?.map.itemDetails || "Item"}: ${t.label}\n${dictionary?.map.location || "Location"}: (${t.x.toFixed(1)}, ${t.y.toFixed(1)})\n${dictionary?.map.distance || "Distance"}: ${distance.toFixed(1)} ${dictionary?.map.units || "units"}`);
                     }}
                   />
                 </div>

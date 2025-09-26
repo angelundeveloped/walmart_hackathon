@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelection } from '@/lib/selection';
 import { getSimilarItems } from '@/lib/llm';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslatedSectionName } from '@/lib/i18n';
 
 interface ShoppingItem {
   id: string;
@@ -140,7 +141,7 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-walmart">{dictionary?.shopping.title || "Shopping List"}</h3>
           <div className="text-sm text-contrast-muted">
-            {completedCount}/{totalCount} completed
+            {completedCount}/{totalCount} {dictionary?.shopping.completedCount || "completed"}
           </div>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
@@ -198,13 +199,18 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                     </p>
                     {cartPosition && !item.isCompleted && sortedItems.indexOf(item) === 0 && (
                       <span className="text-xs bg-walmart-yellow text-walmart px-2 py-1 rounded-full font-semibold">
-                        Closest
+                        {dictionary?.map.closest || 'Closest'}
                       </span>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="text-sm">{getCategoryIcon(item.category)}</span>
-                    <p className="text-sm text-gray-600">{item.category}</p>
+                    <p className="text-sm text-gray-600">
+                      {item.category === 'From Chat' 
+                        ? (dictionary?.map.fromChat || 'From Chat')
+                        : getTranslatedSectionName(item.category, dictionary!)
+                      }
+                    </p>
                   </div>
                 </div>
                 
@@ -230,9 +236,9 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
                         const similar = await getSimilarItems(item.id, 3);
                         if (similar.length > 0) {
                           const similarNames = similar.map(s => s.item.name).join(', ');
-                          alert(`Similar items to ${item.name}:\n${similarNames}`);
+                          alert(`${dictionary?.shopping.similarItems || "Similar items to"} ${item.name}:\n${similarNames}`);
                         } else {
-                          alert(`No similar items found for ${item.name}`);
+                          alert(`${dictionary?.shopping.noSimilarItems || "No similar items found for"} ${item.name}`);
                         }
                       } catch (error) {
                         console.error('Error getting similar items:', error);

@@ -8,7 +8,17 @@
     "close": "Cerrar",
     "back": "Atrás",
     "next": "Siguiente",
-    "done": "Hecho"
+    "done": "Hecho",
+    "yes": "Sí",
+    "no": "No",
+    "ok": "OK",
+    "processing": "Procesando...",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "clear": "Limpiar",
+    "select": "Seleccionar",
+    "all": "Todos",
+    "none": "Ninguno"
   },
   "header": {
     "title": "Walmart Wavefinder",
@@ -33,9 +43,18 @@
     "services": "Servicios",
     "checkout": "Caja",
     "direction": "Dirección",
-    "controls": "Toca elementos de la leyenda para alternar • Usa las flechas para mover el carrito"
+    "controls": "Toca elementos de la leyenda para alternar • Usa las flechas para mover el carrito",
+    "position": "Posición",
+    "distance": "Distancia",
+    "closest": "Más Cercano",
+    "fromChat": "Del Chat",
+    "itemDetails": "Detalles del Artículo",
+    "location": "Ubicación",
+    "units": "unidades"
   },
   "chat": {
+    "title": "Asistente de Compras",
+    "welcome": "¡Hola! Soy tu asistente de compras de Walmart. ¿Qué artículos estás buscando hoy?",
     "placeholder": "Pregúntame qué necesitas encontrar...",
     "send": "Enviar",
     "thinking": "La IA está pensando...",
@@ -46,7 +65,15 @@
     "empty": "Tu lista de compras está vacía. ¡Pregúntame qué necesitas encontrar!",
     "similar": "Similar",
     "remove": "Eliminar",
-    "completed": "Completado"
+    "completed": "Completado",
+    "completedCount": "completado",
+    "addItem": "Agregar Artículo",
+    "findSimilar": "Encontrar Artículos Similares",
+    "noSimilarItems": "No se encontraron artículos similares",
+    "similarItems": "Artículos similares a",
+    "itemAdded": "Artículo agregado a tu lista",
+    "itemRemoved": "Artículo eliminado de tu lista",
+    "itemCompleted": "Artículo marcado como completado"
   },
   "auth": {
     "signIn": "Iniciar Sesión",
@@ -67,5 +94,41 @@
   },
   "footer": {
     "description": "Walmart Wavefinder - Proyecto de Hackathon | Sistema de Navegación con IA"
+  },
+  "store": {
+    "sections": {
+      "produce": "Frutas y Verduras",
+      "bakery": "Panadería", 
+      "dairy": "Lácteos",
+      "meat": "Carnes y Mariscos",
+      "frozen": "Alimentos Congelados",
+      "pantry": "Despensa",
+      "beverages": "Bebidas",
+      "health": "Salud y Belleza",
+      "household": "Hogar"
+    },
+    "services": {
+      "mainEntrance": "Entrada Principal",
+      "gardenCenter": "Entrada del Vivero",
+      "checkout1": "Caja 1",
+      "checkout2": "Caja 2", 
+      "checkout3": "Caja 3",
+      "selfCheckout": "Autoservicio",
+      "pharmacy": "Farmacia",
+      "customerService": "Servicio al Cliente",
+      "moneyCenter": "Centro de Servicios Financieros"
+    }
+  },
+  "menu": {
+    "title": "Menú",
+    "language": "Idioma",
+    "account": "Cuenta",
+    "status": "Estado",
+    "closeMenu": "Cerrar menú"
+  },
+  "navigation": {
+    "map": "Mapa",
+    "chat": "Chat", 
+    "list": "Lista"
   }
 }

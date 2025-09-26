@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MobileLayoutProps {
   mapContent: React.ReactNode;
@@ -11,11 +12,12 @@ interface MobileLayoutProps {
 
 export default function MobileLayout({ mapContent, chatContent, listContent, className = '' }: MobileLayoutProps) {
   const [activeTab, setActiveTab] = useState<'map' | 'chat' | 'list'>('map');
+  const { dictionary } = useLanguage();
 
   const tabs = [
-    { id: 'map' as const, label: 'Map', icon: '🗺️' },
-    { id: 'chat' as const, label: 'Chat', icon: '💬' },
-    { id: 'list' as const, label: 'List', icon: '📝' }
+    { id: 'map' as const, label: dictionary?.navigation.map || 'Map', icon: '🗺️' },
+    { id: 'chat' as const, label: dictionary?.navigation.chat || 'Chat', icon: '💬' },
+    { id: 'list' as const, label: dictionary?.navigation.list || 'List', icon: '📝' }
   ];
 
   const renderContent = () => {

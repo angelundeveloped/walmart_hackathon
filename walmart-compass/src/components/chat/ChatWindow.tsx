@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useSelection } from '@/lib/selection';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { detectLanguage, shouldSwitchLanguage } from '@/lib/language-detection';
 
 interface Message {
   id: string;
@@ -26,20 +27,21 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
   const { setTargetsAbsolute, setPendingItems } = useSelection();
   const { profile } = useAuth();
   const { preferences } = usePreferences();
-  const { dictionary } = useLanguage();
+  const { dictionary, locale, setLocale } = useLanguage();
 
   useEffect(() => {
     setIsClient(true);
     // Initialize with welcome message only on client side
+    const welcomeMessage = dictionary?.chat?.welcome || 'Hi! I\'m your Walmart shopping assistant. What items are you looking for today?';
     setMessages([
       {
         id: '1',
-        text: 'Hi! I\'m your Walmart shopping assistant. What items are you looking for today?',
+        text: welcomeMessage,
         isUser: false,
         timestamp: new Date()
       }
     ]);
-  }, []);
+  }, [dictionary]);
 
   // RAG-enhanced chat function
   const askGeminiWithRAG = async (message: string, context?: string) => {
@@ -56,6 +58,8 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
       }
     };
 
+    // Detect language from user input
+    const detectedLanguage = detectLanguage(message);
 
     const response = await fetch('/api/chat-simple-rag', {
       method: 'POST',
@@ -65,7 +69,9 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
       body: JSON.stringify({
         message,
         userContext,
-        context
+        context,
+        language: locale,
+        detectedLanguage
       }),
     });
 
@@ -80,6 +86,14 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
 
   const handleSendMessage = async () => {
     if (!inputText.trim() || isProcessing) return;
+
+    // Detect language and potentially switch
+    const detectedLanguage = detectLanguage(inputText);
+    const shouldSwitch = shouldSwitchLanguage(inputText, locale);
+    
+    if (shouldSwitch && detectedLanguage !== 'unknown') {
+      setLocale(detectedLanguage);
+    }
 
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -220,7 +234,7 @@ export default function ChatWindow({ className = '' }: ChatWindowProps) {
             disabled={!inputText.trim() || isProcessing}
             className="px-4 sm:px-6 py-3 bg-walmart-yellow text-walmart rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm sm:text-base touch-manipulation min-w-[80px] sm:min-w-auto font-semibold hover:bg-yellow-400"
           >
-            {isProcessing ? (dictionary?.common.loading || 'Processing...') : (dictionary?.chat.send || 'Send')}
+            {isProcessing ? (dictionary?.common.processing || 'Processing...') : (dictionary?.chat.send || 'Send')}
           </button>
         </div>
       </div>

@@ -15,6 +15,16 @@ export type Dictionary = {
     back: string;
     next: string;
     done: string;
+    yes: string;
+    no: string;
+    ok: string;
+    processing: string;
+    search: string;
+    filter: string;
+    clear: string;
+    select: string;
+    all: string;
+    none: string;
   };
   header: {
     title: string;
@@ -40,8 +50,17 @@ export type Dictionary = {
     checkout: string;
     direction: string;
     controls: string;
+    position: string;
+    distance: string;
+    closest: string;
+    fromChat: string;
+    itemDetails: string;
+    location: string;
+    units: string;
   };
   chat: {
+    title: string;
+    welcome: string;
     placeholder: string;
     send: string;
     thinking: string;
@@ -53,6 +72,14 @@ export type Dictionary = {
     similar: string;
     remove: string;
     completed: string;
+    completedCount: string;
+    addItem: string;
+    findSimilar: string;
+    noSimilarItems: string;
+    similarItems: string;
+    itemAdded: string;
+    itemRemoved: string;
+    itemCompleted: string;
   };
   auth: {
     signIn: string;
@@ -73,6 +100,42 @@ export type Dictionary = {
   };
   footer: {
     description: string;
+  };
+  store: {
+    sections: {
+      produce: string;
+      bakery: string;
+      dairy: string;
+      meat: string;
+      frozen: string;
+      pantry: string;
+      beverages: string;
+      health: string;
+      household: string;
+    };
+    services: {
+      mainEntrance: string;
+      gardenCenter: string;
+      checkout1: string;
+      checkout2: string;
+      checkout3: string;
+      selfCheckout: string;
+      pharmacy: string;
+      customerService: string;
+      moneyCenter: string;
+    };
+  };
+  menu: {
+    title: string;
+    language: string;
+    account: string;
+    status: string;
+    closeMenu: string;
+  };
+  navigation: {
+    map: string;
+    chat: string;
+    list: string;
   };
 };
 
@@ -101,4 +164,59 @@ export function getLocaleFromHeaders(headers: Headers): Locale {
   }
   
   return defaultLocale;
+}
+
+// Utility function to get translated store section name
+export function getTranslatedSectionName(sectionKey: string, dictionary: Dictionary): string {
+  const sectionMap: Record<string, keyof Dictionary['store']['sections']> = {
+    'produce': 'produce',
+    'bakery': 'bakery',
+    'dairy': 'dairy',
+    'meat': 'meat',
+    'frozen': 'frozen',
+    'pantry': 'pantry',
+    'beverages': 'beverages',
+    'health': 'health',
+    'household': 'household',
+    // Handle variations
+    'meat & seafood': 'meat',
+    'frozen foods': 'frozen',
+    'pantry aisles': 'pantry',
+    'health & beauty': 'health'
+  };
+  
+  const normalizedKey = sectionKey.toLowerCase();
+  const mappedKey = sectionMap[normalizedKey];
+  
+  if (mappedKey && dictionary.store.sections[mappedKey]) {
+    return dictionary.store.sections[mappedKey];
+  }
+  
+  // Fallback to original name if no translation found
+  return sectionKey;
+}
+
+// Utility function to get translated service name
+export function getTranslatedServiceName(serviceKey: string, dictionary: Dictionary): string {
+  const serviceMap: Record<string, keyof Dictionary['store']['services']> = {
+    'main entrance': 'mainEntrance',
+    'garden center entrance': 'gardenCenter',
+    'checkout lane 1': 'checkout1',
+    'checkout lane 2': 'checkout2',
+    'checkout lane 3': 'checkout3',
+    'self checkout': 'selfCheckout',
+    'pharmacy': 'pharmacy',
+    'customer service': 'customerService',
+    'money center': 'moneyCenter'
+  };
+  
+  const normalizedKey = serviceKey.toLowerCase();
+  const mappedKey = serviceMap[normalizedKey];
+  
+  if (mappedKey && dictionary.store.services[mappedKey]) {
+    return dictionary.store.services[mappedKey];
+  }
+  
+  // Fallback to original name if no translation found
+  return serviceKey;
 }
