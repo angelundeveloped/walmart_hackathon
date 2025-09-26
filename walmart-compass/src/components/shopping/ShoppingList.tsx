@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSelection } from '@/lib/selection';
 import { getSimilarItems } from '@/lib/llm';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslatedSectionName } from '@/lib/i18n';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ShoppingItem {
   id: string;
@@ -24,6 +25,7 @@ interface ShoppingListProps {
 export default function ShoppingList({ className = '' }: ShoppingListProps) {
   const { setTargetsAbsolute, pendingItems, cartPosition, removeTarget } = useSelection();
   const { dictionary } = useLanguage();
+  const { user } = useAuth();
 
   // Get category icon
   const getCategoryIcon = (category: string) => {
@@ -41,46 +43,89 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
       default: return '🛒';
     }
   };
-  const [items, setItems] = useState<ShoppingItem[]>([
-    {
-      id: '1',
-      name: 'Organic Milk',
-      category: 'Dairy',
-      isCompleted: false,
-      location: { x: 10, y: 5 }
-    },
-    {
-      id: '2',
-      name: 'Whole Wheat Bread',
-      category: 'Bakery',
-      isCompleted: false,
-      location: { x: 15, y: 8 }
-    },
-    {
-      id: '3',
-      name: 'Free Range Eggs',
-      category: 'Dairy',
-      isCompleted: true,
-      location: { x: 10, y: 6 }
-    }
-  ]);
+  const [items, setItems] = useState<ShoppingItem[]>([]);
+  const [listId, setListId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   
   // Track removed items to prevent them from being re-added
   const [removedItems, setRemovedItems] = useState<Set<string>>(new Set());
 
+  // Load shopping list from database
+  const loadShoppingList = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/shopping-list');
+      if (response.ok) {
+        const data = await response.json();
+        setItems(data.items || []);
+        setListId(data.id);
+      } else {
+        console.error('Failed to load shopping list');
+      }
+    } catch (error) {
+      console.error('Error loading shopping list:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  // Save shopping list to database
+  const saveShoppingList = useCallback(async (itemsToSave: ShoppingItem[]) => {
+    if (!user || saving) return;
+
+    setSaving(true);
+    try {
+      const response = await fetch('/api/shopping-list', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items: itemsToSave }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setListId(data.id);
+      } else {
+        console.error('Failed to save shopping list');
+      }
+    } catch (error) {
+      console.error('Error saving shopping list:', error);
+    } finally {
+      setSaving(false);
+    }
+  }, [user, saving]);
+
+  // Load shopping list on component mount and when user changes
+  useEffect(() => {
+    loadShoppingList();
+  }, [loadShoppingList]);
+
   const toggleItem = (id: string) => {
-    setItems(prev => 
-      prev.map(item => 
+    setItems(prev => {
+      const updatedItems = prev.map(item => 
         item.id === id 
           ? { ...item, isCompleted: !item.isCompleted }
           : item
-      )
-    );
+      );
+      // Save to database after state update
+      setTimeout(() => saveShoppingList(updatedItems), 100);
+      return updatedItems;
+    });
   };
 
   const removeItem = (id: string) => {
-    // Remove from local items state
-    setItems(prev => prev.filter(i => i.id !== id));
+    setItems(prev => {
+      const updatedItems = prev.filter(i => i.id !== id);
+      // Save to database after state update
+      setTimeout(() => saveShoppingList(updatedItems), 100);
+      return updatedItems;
+    });
     // Also remove from selection context targets
     removeTarget(id);
     // Track this item as removed to prevent re-adding
@@ -131,10 +176,13 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
             location: { x: p.x, y: p.y },
           }));
         if (additions.length === 0) return prev;
-        return [...prev, ...additions];
+        const updatedItems = [...prev, ...additions];
+        // Save to database after adding new items
+        setTimeout(() => saveShoppingList(updatedItems), 100);
+        return updatedItems;
       });
     }
-  }, [pendingItems, removedItems]);
+  }, [pendingItems, removedItems, saveShoppingList]);
 
   // Separate effect for updating targets to avoid infinite loops
   useEffect(() => {
@@ -152,8 +200,13 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
       <div className="p-4 border-b border-gray-200 bg-[rgba(255,194,32,0.06)]">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold text-walmart">{dictionary?.shopping.title || "Shopping List"}</h3>
-          <div className="text-sm text-contrast-muted">
-            {completedCount}/{totalCount} {dictionary?.shopping.completedCount || "completed"}
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-contrast-muted">
+              {completedCount}/{totalCount} {dictionary?.shopping.completedCount || "completed"}
+            </div>
+            {saving && (
+              <div className="w-4 h-4 border-2 border-walmart-yellow border-t-transparent rounded-full animate-spin"></div>
+            )}
           </div>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
@@ -167,7 +220,12 @@ export default function ShoppingList({ className = '' }: ShoppingListProps) {
       </div>
       
       <div className="p-4">
-        {items.length === 0 ? (
+        {loading ? (
+          <div className="text-center text-contrast-muted py-8">
+            <div className="w-8 h-8 border-2 border-walmart-yellow border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+            <p>Loading your shopping list...</p>
+          </div>
+        ) : items.length === 0 ? (
           <div className="text-center text-contrast-muted py-8">
             <div className="text-4xl mb-2">🛒</div>
             <p>No items in your list yet</p>

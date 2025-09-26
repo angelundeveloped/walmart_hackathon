@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Memory Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            color: #0071ce;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .test-button {
+            background: #ffc220;
+            color: #0071ce;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #ffd700;
+        }
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Session Memory Test Suite</h1>
+    <p>This page helps you test the session memory and data persistence features.</p>
+
+    <div class="test-container">
+        <div class="test-title">1. Authentication Test</div>
+        <p>First, make sure you're logged in to the app.</p>
+        <button class="test-button" onclick="testAuth()">Test Authentication</button>
+        <div id="auth-result" class="test-result" style="display: none;"></div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-title">2. Shopping List API Test</div>
+        <p>Test the shopping list persistence API endpoints.</p>
+        <button class="test-button" onclick="testShoppingListAPI()">Test Shopping List API</button>
+        <div id="shopping-result" class="test-result" style="display: none;"></div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-title">3. Chat History API Test</div>
+        <p>Test the chat history persistence API endpoints.</p>
+        <button class="test-button" onclick="testChatHistoryAPI()">Test Chat History API</button>
+        <div id="chat-result" class="test-result" style="display: none;"></div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-title">4. User Context API Test</div>
+        <p>Test the user context persistence API endpoints.</p>
+        <button class="test-button" onclick="testUserContextAPI()">Test User Context API</button>
+        <div id="context-result" class="test-result" style="display: none;"></div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-title">5. End-to-End Test</div>
+        <p>Test the complete flow: add items, chat, refresh, verify persistence.</p>
+        <button class="test-button" onclick="runEndToEndTest()">Run End-to-End Test</button>
+        <div id="e2e-result" class="test-result" style="display: none;"></div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-title">6. Manual Test Instructions</div>
+        <div class="test-result info">
+1. Open the main app in another tab
+2. Add some items to your shopping list via chat
+3. Toggle some items as completed
+4. Have a conversation with the AI
+5. Refresh the page (F5)
+6. Verify that:
+   - Shopping list items are still there
+   - Completed status is preserved
+   - Chat history is maintained
+   - AI remembers your preferences
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `test-result ${type}`;
+            element.textContent = message;
+        }
+
+        async function testAuth() {
+            showResult('auth-result', 'Testing authentication...', 'loading');
+            
+            try {
+                // Check if we can access the main app
+                const response = await fetch('/');
+                if (response.ok) {
+                    showResult('auth-result', '✅ App is accessible\nℹ️  Make sure you\'re logged in with Google OAuth in the main app', 'success');
+                } else {
+                    showResult('auth-result', '❌ App is not accessible', 'error');
+                }
+            } catch (error) {
+                showResult('auth-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testShoppingListAPI() {
+            showResult('shopping-result', 'Testing shopping list API...', 'loading');
+            
+            try {
+                const response = await fetch('/api/shopping-list');
+                const data = await response.json();
+                
+                if (response.status === 401) {
+                    showResult('shopping-result', '✅ API returns 401 (Unauthorized) - Expected for unauthenticated access\nℹ️  This means the API is working correctly', 'success');
+                } else if (response.ok) {
+                    showResult('shopping-result', `✅ API returns 200 (OK)\nData: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('shopping-result', `⚠️  API returns ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('shopping-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testChatHistoryAPI() {
+            showResult('chat-result', 'Testing chat history API...', 'loading');
+            
+            try {
+                const response = await fetch('/api/chat-history');
+                const data = await response.json();
+                
+                if (response.status === 401) {
+                    showResult('chat-result', '✅ API returns 401 (Unauthorized) - Expected for unauthenticated access\nℹ️  This means the API is working correctly', 'success');
+                } else if (response.ok) {
+                    showResult('chat-result', `✅ API returns 200 (OK)\nData: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('chat-result', `⚠️  API returns ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('chat-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testUserContextAPI() {
+            showResult('context-result', 'Testing user context API...', 'loading');
+            
+            try {
+                const response = await fetch('/api/user-context');
+                const data = await response.json();
+                
+                if (response.status === 401) {
+                    showResult('context-result', '✅ API returns 401 (Unauthorized) - Expected for unauthenticated access\nℹ️  This means the API is working correctly', 'success');
+                } else if (response.ok) {
+                    showResult('context-result', `✅ API returns 200 (OK)\nData: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult('context-result', `⚠️  API returns ${response.status}\nResponse: ${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult('context-result', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function runEndToEndTest() {
+            showResult('e2e-result', 'Running end-to-end test...', 'loading');
+            
+            let results = [];
+            
+            try {
+                // Test 1: Check if APIs are accessible
+                const apis = ['/api/shopping-list', '/api/chat-history', '/api/user-context'];
+                for (const api of apis) {
+                    const response = await fetch(api);
+                    results.push(`${api}: ${response.status}`);
+                }
+                
+                // Test 2: Check if main app is accessible
+                const appResponse = await fetch('/');
+                results.push(`Main app: ${appResponse.status}`);
+                
+                showResult('e2e-result', 
+                    `End-to-End Test Results:\n${results.join('\n')}\n\n` +
+                    `Next Steps:\n` +
+                    `1. Open the main app in another tab\n` +
+                    `2. Log in with Google OAuth\n` +
+                    `3. Add items to shopping list\n` +
+                    `4. Chat with the AI\n` +
+                    `5. Refresh the page\n` +
+                    `6. Verify persistence`, 
+                    'info'
+                );
+                
+            } catch (error) {
+                showResult('e2e-result', `❌ End-to-end test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testAuth();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

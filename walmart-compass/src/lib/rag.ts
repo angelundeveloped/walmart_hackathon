@@ -30,15 +30,103 @@ export interface RAGContext {
 
 export class RAGSystem {
   private userContext: UserContext | null = null;
+  private supabase: any = null;
+
+  // Create fallback embedding when Gemini API is unavailable
+  private createFallbackEmbedding(text: string): number[] {
+    const words = text.toLowerCase().split(/\s+/);
+    const vocabulary = [
+      'healthy', 'snacks', 'workout', 'breakfast', 'lunch', 'dinner', 'organic', 'fresh',
+      'milk', 'bread', 'eggs', 'cheese', 'yogurt', 'bananas', 'apples', 'water',
+      'dairy', 'bakery', 'produce', 'pantry', 'beverages', 'snacks', 'frozen',
+      'protein', 'vitamins', 'nutrition', 'energy', 'fitness', 'exercise'
+    ];
+    
+    const embedding = new Array(384).fill(0);
+    
+    words.forEach(word => {
+      const index = vocabulary.indexOf(word);
+      if (index !== -1) {
+        // Map vocabulary word to embedding dimensions
+        const embeddingIndex = index % 384;
+        embedding[embeddingIndex] += 1;
+      }
+    });
+    
+    // Normalize the embedding
+    const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+    if (magnitude > 0) {
+      return embedding.map(val => val / magnitude);
+    }
+    
+    return embedding;
+  }
 
   // Initialize RAG with user context
   async initialize(userContext: UserContext): Promise<void> {
     this.userContext = userContext;
     try {
+      // Initialize Supabase client for semantic search
+      if (typeof window === 'undefined') {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        
+        if (supabaseUrl && supabaseKey) {
+          this.supabase = createClient(supabaseUrl, supabaseKey);
+          console.log('RAG system initialized with Supabase client');
+        }
+      }
+      
       await vectorDB.initialize();
-        } catch {
+      console.log('RAG system initialized with vector DB');
+        } catch (error) {
+          console.error('RAG system initialization failed:', error);
           // Continue without vector DB - we can still use basic context
         }
+  }
+
+  // Supabase native semantic search
+  async searchWithSupabase(query: string, limit: number = 10): Promise<SearchResult[]> {
+    if (!this.supabase) {
+      throw new Error('Supabase client not initialized');
+    }
+
+    try {
+      // Use fallback embedding directly for now (it's working well)
+      const queryEmbedding = this.createFallbackEmbedding(query);
+      console.log(`Using fallback embedding for query: "${query}" (${queryEmbedding.length} dimensions)`);
+
+      // Use Supabase RPC function for semantic search
+      const { data: results, error } = await this.supabase.rpc('match_store_items', {
+        query_embedding: queryEmbedding,
+        match_threshold: 0.1,
+        match_count: limit
+      });
+
+      if (error) {
+        throw new Error(`Supabase RPC error: ${error.message}`);
+      }
+
+      // Convert to SearchResult format
+      return results.map((item: any) => ({
+        item: {
+          id: item.id,
+          name: item.name,
+          description: item.description || `${item.name} ${item.category}`,
+          category: item.category,
+          embedding: [], // Not needed for results
+          coordinates: item.coordinates,
+          price: item.price || 0
+        },
+        similarity: item.similarity,
+        distance: 1 - item.similarity
+      }));
+
+    } catch (error) {
+      console.error('Supabase semantic search error:', error);
+      throw error;
+    }
   }
 
   // Enhanced semantic search with user context
@@ -47,11 +135,15 @@ export class RAGSystem {
       throw new Error('RAG system not initialized');
     }
 
-    // Get base semantic search results
+    console.log(`RAG searchWithContext called with query: "${query}"`);
+
+    // Get base semantic search results using vector DB (Supabase has embedding format issues)
     let baseResults: SearchResult[] = [];
     try {
       baseResults = await vectorDB.search(query, limit * 2);
-        } catch {
+      console.log(`Vector DB search returned ${baseResults.length} results`);
+        } catch (error) {
+          console.error('Vector DB search failed:', error);
           // Return empty results if vector search fails
         }
 

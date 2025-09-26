@@ -67,9 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Set a timeout to prevent infinite loading
     const loadingTimeout = setTimeout(() => {
-      if (loading) {
-        setLoading(false)
-      }
+      setLoading(false)
     }, 10000) // 10 second timeout
     
     // Get initial session
@@ -88,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event: string, session: Session | null) => {
+      console.log('Auth state change:', event, session?.user?.email)
       setSession(session)
       setUser(session?.user ?? null)
       
@@ -104,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe()
       clearTimeout(loadingTimeout)
     }
-  }, [fetchUserProfile, loading])
+  }, [fetchUserProfile])
 
   const signInWithGoogle = async () => {
     try {

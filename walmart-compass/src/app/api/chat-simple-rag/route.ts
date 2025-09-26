@@ -1,4 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase-server';
+import { ragSystem, RAGContext } from '@/lib/rag';
+
+// Function to fetch real store items from database
+async function getStoreInventory() {
+  try {
+    const supabase = await createClient();
+    const { data: items, error } = await supabase
+      .from('store_items')
+      .select('name, category')
+      .order('category, name');
+
+    if (error) {
+      console.error('Error fetching store items:', error);
+      return null;
+    }
+
+    // Group items by category
+    const inventoryByCategory: { [key: string]: string[] } = {};
+    items?.forEach(item => {
+      if (!inventoryByCategory[item.category]) {
+        inventoryByCategory[item.category] = [];
+      }
+      inventoryByCategory[item.category].push(item.name);
+    });
+
+    // Format for the prompt
+    const inventoryText = Object.entries(inventoryByCategory)
+      .map(([category, items]) => `- ${category.charAt(0).toUpperCase() + category.slice(1)}: ${items.join(', ')}`)
+      .join('\n');
+
+    return inventoryText;
+  } catch (error) {
+    console.error('Error in getStoreInventory:', error);
+    return null;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,22 +63,102 @@ export async function POST(request: NextRequest) {
     }
 
 
-    // Simple RAG context without vector database
-    const preferences = userContext?.preferences || {
+    // Get user context from database if available
+    let preferences = userContext?.preferences || {
       dietaryRestrictions: [],
       brandPreferences: [],
       organicPreference: false
     };
 
-    const shoppingHistory = userContext?.shoppingHistory || [];
+    let shoppingHistory = userContext?.shoppingHistory || [];
+
+    // Try to get user context from database if user is authenticated
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Get user profile with preferences
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('preferences')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.preferences) {
+          preferences = {
+            dietaryRestrictions: profile.preferences.dietaryRestrictions || [],
+            brandPreferences: profile.preferences.brandPreferences || [],
+            organicPreference: profile.preferences.organicPreference || false
+          };
+        }
+
+        // Get recent shopping history
+        const { data: historyData } = await supabase
+          .from('shopping_history')
+          .select('items, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (historyData) {
+          shoppingHistory = historyData.map(entry => ({
+            items: entry.items.map((item: { name: string }) => item.name),
+            date: entry.created_at,
+            context: 'Completed shopping trip'
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user context from database:', error);
+      // Fall back to provided userContext
+    }
+
+    // Initialize RAG system with user context
+    let ragContext: RAGContext | null = null;
+    try {
+      await ragSystem.initialize({
+        preferences,
+        shoppingHistory,
+        currentSession: {
+          items: [],
+          context: context || message
+        }
+      });
+
+      // Build RAG context for enhanced recommendations
+      ragContext = await ragSystem.buildRAGContext(message, context);
+    } catch (error) {
+      console.error('RAG system initialization failed:', error);
+      // Continue without RAG context
+    }
 
     // Determine the response language based on detected language or current language setting
     const responseLanguage = detectedLanguage !== 'en' ? detectedLanguage : language;
     const isSpanish = responseLanguage === 'es';
     
-    // Create enhanced system prompt with simple RAG context and language awareness
+    // Fetch real store inventory from database
+    const storeInventory = await getStoreInventory();
+    const inventoryText = storeInventory || `- Dairy: Organic Whole Milk, 2% Reduced Fat Milk, Free Range Eggs, Sharp Cheddar Cheese, Greek Yogurt
+- Bakery: Whole Wheat Bread, White Sandwich Bread, Everything Bagels
+- Produce: Organic Bananas, Red Delicious Apples, Romaine Lettuce, Roma Tomatoes
+- Meat: Boneless Chicken Breast, Ground Beef, Atlantic Salmon Fillet
+- Frozen: Vanilla Ice Cream, Mixed Frozen Vegetables, Pepperoni Pizza
+- Pantry: Spaghetti Pasta, Basmati Rice, Honey Nut Cheerios, Chocolate Chip Cookies, Crushed Tomatoes, Extra Virgin Olive Oil
+- Beverages: Spring Water (24 pack), Coca-Cola (12 pack), Ground Coffee
+- Health: Moisturizing Shampoo, Fluoride Toothpaste, Daily Multivitamin
+- Household: Liquid Laundry Detergent, Paper Towels, Toilet Paper, Dish Soap`;
+    
+    // Create enhanced system prompt with RAG context and language awareness
+    const ragContextText = ragContext ? `
+CONTEXTO RAG (Recomendaciones Inteligentes):
+- Artículos Relevantes Encontrados: ${ragContext.relevantItems.map(item => `${item.item.name} (${item.item.category})`).join(', ')}
+- Recomendaciones Contextuales: ${ragContext.recommendations.join(', ')}
+- Similitud de Búsqueda: ${ragContext.relevantItems.length > 0 ? 'Encontrados artículos semánticamente similares' : 'Búsqueda semántica no disponible'}
+` : '';
+
     const systemPrompt = isSpanish 
-      ? `Eres Sam, un asistente de compras de Walmart amigable y útil con capacidades avanzadas de IA. Tienes acceso a las preferencias del usuario y su historial de compras.
+      ? `Eres Sam, un asistente de compras de Walmart amigable y útil con capacidades avanzadas de IA. Tienes acceso a las preferencias del usuario, su historial de compras, y un sistema RAG (Retrieval-Augmented Generation) para recomendaciones inteligentes.
 
 CONTEXTO DEL USUARIO:
 - Restricciones Dietéticas: ${preferences.dietaryRestrictions.join(', ') || 'Ninguna'}
@@ -53,17 +170,9 @@ HISTORIAL DE COMPRAS (Últimas 3 sesiones):
 ${shoppingHistory.slice(-3).map((session: { date?: string; items?: string[]; context?: string }) => 
   `- ${session.date?.split('T')[0] || 'Reciente'}: ${session.items?.join(', ') || 'Sin artículos'} ${session.context ? `(${session.context})` : ''}`
 ).join('\n') || 'No hay historial de compras disponible'}
-
+${ragContextText}
 INVENTARIO DE LA TIENDA (Artículos Disponibles):
-- Lácteos: Leche Entera Orgánica, Leche Reducida en Grasa 2%, Huevos de Gallinas Libres, Queso Cheddar Afilado, Yogur Griego
-- Panadería: Pan Integral, Pan Blanco para Sándwiches, Bagels de Todo
-- Productos Frescos: Plátanos Orgánicos, Manzanas Red Delicious, Lechuga Romana, Tomates Roma
-- Carnes: Pechuga de Pollo Sin Hueso, Carne Molida, Filete de Salmón del Atlántico
-- Congelados: Helado de Vainilla, Vegetales Congelados Mixtos, Pizza de Pepperoni
-- Despensa: Pasta Espagueti, Arroz Basmati, Honey Nut Cheerios, Galletas de Chips de Chocolate, Tomates Triturados, Aceite de Oliva Extra Virgen
-- Bebidas: Agua de Manantial (paquete de 24), Coca-Cola (paquete de 12), Café Molido
-- Salud: Champú Hidratante, Pasta de Dientes con Flúor, Multivitamínico Diario
-- Hogar: Detergente Líquido para Ropa, Toallas de Papel, Papel Higiénico, Jabón para Platos
+${inventoryText}
 
 TUS CAPACIDADES MEJORADAS:
 1. Usa las restricciones dietéticas del usuario para filtrar recomendaciones
@@ -95,7 +204,7 @@ items:
   - name: Paper Towels"
 
 Recuerda: ¡Sé natural, útil y usa los nombres exactos de los artículos de nuestro inventario! Considera las restricciones dietéticas y preferencias del usuario en tus recomendaciones.`
-      : `You are Sam, a friendly and helpful Walmart shopping assistant with advanced AI capabilities. You have access to the user's preferences and shopping history.
+      : `You are Sam, a friendly and helpful Walmart shopping assistant with advanced AI capabilities. You have access to the user's preferences, shopping history, and a RAG (Retrieval-Augmented Generation) system for intelligent recommendations.
 
 USER CONTEXT:
 - Dietary Restrictions: ${preferences.dietaryRestrictions.join(', ') || 'None'}
@@ -107,17 +216,9 @@ SHOPPING HISTORY (Last 3 sessions):
 ${shoppingHistory.slice(-3).map((session: { date?: string; items?: string[]; context?: string }) => 
   `- ${session.date?.split('T')[0] || 'Recent'}: ${session.items?.join(', ') || 'No items'} ${session.context ? `(${session.context})` : ''}`
 ).join('\n') || 'No shopping history available'}
-
+${ragContextText}
 STORE INVENTORY (Available Items):
-- Dairy: Organic Whole Milk, 2% Reduced Fat Milk, Free Range Eggs, Sharp Cheddar Cheese, Greek Yogurt
-- Bakery: Whole Wheat Bread, White Sandwich Bread, Everything Bagels
-- Produce: Organic Bananas, Red Delicious Apples, Romaine Lettuce, Roma Tomatoes
-- Meat: Boneless Chicken Breast, Ground Beef, Atlantic Salmon Fillet
-- Frozen: Vanilla Ice Cream, Mixed Frozen Vegetables, Pepperoni Pizza
-- Pantry: Spaghetti Pasta, Basmati Rice, Honey Nut Cheerios, Chocolate Chip Cookies, Crushed Tomatoes, Extra Virgin Olive Oil
-- Beverages: Spring Water (24 pack), Coca-Cola (12 pack), Ground Coffee
-- Health: Moisturizing Shampoo, Fluoride Toothpaste, Daily Multivitamin
-- Household: Liquid Laundry Detergent, Paper Towels, Toilet Paper, Dish Soap
+${inventoryText}
 
 YOUR ENHANCED CAPABILITIES:
 1. Use the user's dietary restrictions to filter recommendations
@@ -193,9 +294,21 @@ Remember: Be natural, helpful, and use the exact item names from our inventory! 
 
     return NextResponse.json({ 
       response: text,
-      ragContext: {
+      ragContext: ragContext ? {
+        relevantItems: ragContext.relevantItems.map(item => ({
+          name: item.item.name,
+          category: item.item.category,
+          similarity: item.similarity,
+          coordinates: item.item.coordinates
+        })),
+        recommendations: ragContext.recommendations,
+        userPreferences: ragContext.userPreferences,
+        currentContext: ragContext.currentContext
+      } : {
         relevantItems: [],
-        recommendations: []
+        recommendations: [],
+        userPreferences: preferences,
+        currentContext: context || message
       }
     });
 
